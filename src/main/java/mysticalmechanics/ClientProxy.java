@@ -7,12 +7,12 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ModelManager;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.MathHelper;
@@ -29,12 +29,12 @@ public class ClientProxy implements IProxy {
     }
 
     @Override
-    public boolean isGearHit(TileEntity tile, EnumFacing facing) {
-        EntityPlayer player = Minecraft.getMinecraft().player;
+    public boolean isGearHit(TileEntity tile, Direction facing) {
+        PlayerEntity player = Minecraft.getMinecraft().player;
         RayTraceResult result = Minecraft.getMinecraft().objectMouseOver;
         boolean correctHit = result != null && result.typeOfHit == RayTraceResult.Type.BLOCK && result.getBlockPos().equals(tile.getPos());
         if(correctHit) {
-            EnumFacing sideHit = result.sideHit;
+            Direction sideHit = result.sideHit;
             if (player.isSneaking())
                 sideHit = sideHit.getOpposite();
             return sideHit == facing;
@@ -67,7 +67,7 @@ public class ClientProxy implements IProxy {
     }
 
     @Override
-    public void renderAxle(ModelResourceLocation resLoc, EnumFacing.Axis axis, float angle) {
+    public void renderAxle(ModelResourceLocation resLoc, Direction.Axis axis, float angle) {
         BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
         ModelManager modelmanager = blockrendererdispatcher.getBlockModelShapes().getModelManager();
         IBakedModel ibakedmodel = modelmanager.getModel(resLoc);

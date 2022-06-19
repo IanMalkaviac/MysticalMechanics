@@ -2,8 +2,8 @@ package betterwithmods.api.capabilities;
 
 import betterwithmods.api.tile.IMechanicalPower;
 import net.minecraft.block.Block;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.INBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
@@ -16,34 +16,34 @@ public class CapabilityMechanicalPower {
 
     public static class Impl implements Capability.IStorage<IMechanicalPower> {
         @Override
-        public NBTBase writeNBT(Capability<IMechanicalPower> capability, IMechanicalPower mechanical, EnumFacing side) {
+        public INBT writeNBT(Capability<IMechanicalPower> capability, IMechanicalPower mechanical, Direction side) {
             return null;
         }
 
         @Override
-        public void readNBT(Capability<IMechanicalPower> capability, IMechanicalPower mechanical, EnumFacing side, NBTBase nbt) {
+        public void readNBT(Capability<IMechanicalPower> capability, IMechanicalPower mechanical, Direction side, INBT nbt) {
 
         }
     }
 
     public static class Default implements IMechanicalPower {
         @Override
-        public int getMechanicalOutput(EnumFacing facing) {
+        public int getMechanicalOutput(Direction facing) {
             return 0;
         }
 
         @Override
-        public int getMechanicalInput(EnumFacing facing) {
+        public int getMechanicalInput(Direction facing) {
             return 0;
         }
 
         @Override
-        public int getMaximumInput(EnumFacing facing) {
+        public int getMaximumInput(Direction facing) {
             return 0;
         }
 
         @Override
-        public int getMinimumInput(EnumFacing facing) {
+        public int getMinimumInput(Direction facing) {
             return 0;
         }
 

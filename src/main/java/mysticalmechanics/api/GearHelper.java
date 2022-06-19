@@ -1,8 +1,8 @@
 package mysticalmechanics.api;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,12 +43,12 @@ public class GearHelper {
         return data != null && data.isDirty();
     }
 
-    public void attach(@Nullable EntityPlayer player, ItemStack stack) {
+    public void attach(@Nullable PlayerEntity player, ItemStack stack) {
         gear = stack;
         createData();
     }
 
-    public ItemStack detach(@Nullable EntityPlayer player) {
+    public ItemStack detach(@Nullable PlayerEntity player) {
         ItemStack removed = gear;
         gear = ItemStack.EMPTY;
         data = null;
@@ -63,7 +63,7 @@ public class GearHelper {
         return true;
     }
 
-    public void readFromNBT(NBTTagCompound tag) {
+    public void readFromNBT(CompoundNBT tag) {
         gear = new ItemStack(tag.getCompoundTag("gear"));
         data = null;
         createData();
@@ -71,10 +71,10 @@ public class GearHelper {
             data.readFromNBT(tag.getCompoundTag("data"));
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound tag) {
+    public CompoundNBT writeToNBT(CompoundNBT tag) {
         tag.setTag("gear", gear.serializeNBT());
         if(data != null)
-            tag.setTag("data", data.writeToNBT(new NBTTagCompound()));
+            tag.setTag("data", data.writeToNBT(new CompoundNBT()));
         return tag;
     }
 }

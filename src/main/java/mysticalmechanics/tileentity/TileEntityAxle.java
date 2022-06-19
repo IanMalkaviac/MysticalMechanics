@@ -6,14 +6,14 @@ import mysticalmechanics.api.IHasRotation;
 import mysticalmechanics.api.MysticalMechanicsAPI;
 import mysticalmechanics.block.BlockAxle;
 import mysticalmechanics.util.Misc;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
-import net.minecraft.util.EnumFacing.AxisDirection;
+import net.minecraft.util.Direction.AxisDirection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
@@ -26,15 +26,15 @@ public class TileEntityAxle extends TileEntity implements ITickable, IAxle, IHas
 	//BlockPos back;
     public double angle, lastAngle;
     private boolean isBroken;
-    //private EnumFacing facing;
-	//private EnumFacing inputSide;
+    //private Direction facing;
+	//private Direction inputSide;
     
     public AxleCapability capability = new AxleCapability();
 
     public void updatePower() {
     	//setConnection();
-		EnumFacing frontFacing = getForward();
-		EnumFacing backFacing = getBackward();
+		Direction frontFacing = getForward();
+		Direction backFacing = getBackward();
 		BlockPos front = pos.offset(frontFacing);
 		BlockPos back = pos.offset(backFacing);
 		TileEntity frontTile = world.getTileEntity(front);
@@ -90,7 +90,7 @@ public class TileEntityAxle extends TileEntity implements ITickable, IAxle, IHas
         return null;
     }
     
-    public TileEntityAxle getConnectionTile(BlockPos pos, EnumFacing facing) {		
+    public TileEntityAxle getConnectionTile(BlockPos pos, Direction facing) {		
 		TileEntity tile = world.getTileEntity(pos);
 		if (tile instanceof TileEntityAxle)
 			if(tile.getCapability(MysticalMechanicsAPI.MECH_CAPABILITY, facing).isOutput(facing.getOpposite()))
@@ -107,7 +107,7 @@ public class TileEntityAxle extends TileEntity implements ITickable, IAxle, IHas
     }
     
     @Override
-	public NBTTagCompound writeToNBT(NBTTagCompound tag) {
+	public CompoundNBT writeToNBT(CompoundNBT tag) {
 		super.writeToNBT(tag);
 		//switched facing and inputSide to a string value for until i can figure out the issue with reading int value.
 		capability.writeToNBT(tag);
@@ -133,15 +133,15 @@ public class TileEntityAxle extends TileEntity implements ITickable, IAxle, IHas
 	}  
     
     @Override
-	public void readFromNBT(NBTTagCompound tag) {
+	public void readFromNBT(CompoundNBT tag) {
 		super.readFromNBT(tag);
-		//facing and inputSide aren't being read correctly by Enumfacing.getFront I need to figure out why.
+		//facing and inputSide aren't being read correctly by Direction.getFront I need to figure out why.
 		capability.readFromNBT(tag);
 		/*if (tag.hasKey("facing")) {
-            this.facing = EnumFacing.byName(tag.getString("from"));
+            this.facing = Direction.byName(tag.getString("from"));
         }		
 		if(tag.hasKey("inputSide")) {
-			this.inputSide = EnumFacing.byName(tag.getString("inputSide"));
+			this.inputSide = Direction.byName(tag.getString("inputSide"));
 		}*/
 		/*if(tag.hasKey("front")){
 			int[] pos = tag.getIntArray("front");
@@ -154,8 +154,8 @@ public class TileEntityAxle extends TileEntity implements ITickable, IAxle, IHas
 	}   
 
     @Override
-    public NBTTagCompound getUpdateTag() {
-        return writeToNBT(new NBTTagCompound());
+    public CompoundNBT getUpdateTag() {
+        return writeToNBT(new CompoundNBT());
     }
 
     @Nullable
@@ -170,9 +170,9 @@ public class TileEntityAxle extends TileEntity implements ITickable, IAxle, IHas
     }  
     
     @Override
-	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {		
+	public boolean hasCapability(Capability<?> capability, Direction facing) {		
 		if (capability == MysticalMechanicsAPI.MECH_CAPABILITY) {
-			IBlockState state = world.getBlockState(getPos());						
+			BlockState state = world.getBlockState(getPos());						
 			if (state.getBlock() instanceof BlockAxle) {				
 				if (facing != null && isValidSide(facing)) {
 					return true;
@@ -183,51 +183,51 @@ public class TileEntityAxle extends TileEntity implements ITickable, IAxle, IHas
 	}   
 
     @Override
-    public <T> T getCapability(Capability<T> capability, EnumFacing facing){
+    public <T> T getCapability(Capability<T> capability, Direction facing){
         if (capability == MysticalMechanicsAPI.MECH_CAPABILITY){
             return MysticalMechanicsAPI.MECH_CAPABILITY.cast(this.capability);
         }
         return super.getCapability(capability, facing);
     }
 
-    public boolean activate(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
-                            EnumFacing side, float hitX, float hitY, float hitZ) {
+    public boolean activate(World world, BlockPos pos, BlockState state, PlayerEntity player, EnumHand hand,
+                            Direction side, float hitX, float hitY, float hitZ) {
         return false;
     }
 
-    public void breakBlock(World world, BlockPos pos, IBlockState state, EntityPlayer player) {
+    public void breakBlock(World world, BlockPos pos, BlockState state, PlayerEntity player) {
     	isBroken = true;
         capability.setPower(0f,null);
     }
 
-    public EnumFacing getForward() {
-    	EnumFacing.Axis axis = getAxis();
-    	return EnumFacing.getFacingFromAxis(AxisDirection.POSITIVE,axis);
+    public Direction getForward() {
+    	Direction.Axis axis = getAxis();
+    	return Direction.getFacingFromAxis(AxisDirection.POSITIVE,axis);
 	}
 
-	public EnumFacing getBackward() {
-		EnumFacing.Axis axis = getAxis();
-		return EnumFacing.getFacingFromAxis(AxisDirection.NEGATIVE,axis);
+	public Direction getBackward() {
+		Direction.Axis axis = getAxis();
+		return Direction.getFacingFromAxis(AxisDirection.NEGATIVE,axis);
 	}
 
-    public boolean isForward(EnumFacing facing) {
+    public boolean isForward(Direction facing) {
     	if(facing == null)
     		return false;
 		return facing.getAxis() == getAxis() && facing.getAxisDirection() == AxisDirection.POSITIVE;
 	}
 
-	public boolean isBackward(EnumFacing facing) {
+	public boolean isBackward(Direction facing) {
 		if(facing == null)
 			return false;
 		return facing.getAxis() == getAxis() && facing.getAxisDirection() == AxisDirection.NEGATIVE;
 	}
 
-	public EnumFacing.Axis getAxis() {
-		IBlockState state = world.getBlockState(pos);
+	public Direction.Axis getAxis() {
+		BlockState state = world.getBlockState(pos);
 		return state.getValue(BlockAxle.axis);
 	}
     
-    public boolean isValidSide(EnumFacing facing){
+    public boolean isValidSide(Direction facing){
     	/*if(this.facing == null) {
     		setConnection();
     	}
@@ -243,7 +243,7 @@ public class TileEntityAxle extends TileEntity implements ITickable, IAxle, IHas
     
     /*public void setConnection() {
 		if(facing == null || front == null || back == null) {
-			IBlockState state = world.getBlockState(getPos());    	
+			BlockState state = world.getBlockState(getPos());    	
 			facing = state.getValue(BlockAxle.facing).getOpposite();
 			front = getPos().offset(facing);
 			back = getPos().offset(facing.getOpposite());					
@@ -251,7 +251,7 @@ public class TileEntityAxle extends TileEntity implements ITickable, IAxle, IHas
 		}
 	}*/
     
-    /*private EnumFacing comparePosToSides(BlockPos from) {
+    /*private Direction comparePosToSides(BlockPos from) {
 		if(from.equals(front)) {
 			return world.getBlockState(this.pos).getValue(BlockAxle.facing).getOpposite();
 		}else if(from.equals(back)) {				
@@ -260,7 +260,7 @@ public class TileEntityAxle extends TileEntity implements ITickable, IAxle, IHas
 		return null;			
     }
     
-    private void checkAndSetInput(EnumFacing from) {
+    private void checkAndSetInput(Direction from) {
 		if(from != null) {
 			TileEntity t = world.getTileEntity(getPos().offset(from));
 			if(t!=null && t.hasCapability(MysticalMechanicsAPI.MECH_CAPABILITY, from)) {				
@@ -274,7 +274,7 @@ public class TileEntityAxle extends TileEntity implements ITickable, IAxle, IHas
 	}*/
 
 	@Override
-	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState) {
+	public boolean shouldRefresh(World world, BlockPos pos, BlockState oldState, BlockState newState) {
 		return oldState.getBlock() != newState.getBlock();
 	}
     
@@ -303,10 +303,10 @@ public class TileEntityAxle extends TileEntity implements ITickable, IAxle, IHas
 		return this.isBroken;
 	}
 
-	public void rotateTile(World world, BlockPos pos, EnumFacing side) {
-		IBlockState state = world.getBlockState(pos);
-		EnumFacing.Axis currentAxis = getAxis();
-		currentAxis = EnumFacing.getFacingFromAxis(EnumFacing.AxisDirection.POSITIVE,currentAxis).rotateAround(side.getAxis()).getAxis();
+	public void rotateTile(World world, BlockPos pos, Direction side) {
+		BlockState state = world.getBlockState(pos);
+		Direction.Axis currentAxis = getAxis();
+		currentAxis = Direction.getFacingFromAxis(Direction.AxisDirection.POSITIVE,currentAxis).rotateAround(side.getAxis()).getAxis();
 
 		capability.setPower(0,null);
 		world.setBlockState(pos,state.withProperty(BlockAxle.axis,currentAxis));
@@ -314,22 +314,22 @@ public class TileEntityAxle extends TileEntity implements ITickable, IAxle, IHas
 	}
 
 	@Override
-	public boolean hasRotation(@Nonnull EnumFacing side) {
+	public boolean hasRotation(@Nonnull Direction side) {
 		return isValidSide(side);
 	}
 
 	@Override
-	public double getAngle(@Nonnull EnumFacing side) {
+	public double getAngle(@Nonnull Direction side) {
 		return angle;
 	}
 
 	@Override
-	public double getLastAngle(@Nonnull EnumFacing side) {
+	public double getLastAngle(@Nonnull Direction side) {
 		return lastAngle;
 	}
 
 	@Override
-	public void setRotation(@Nonnull EnumFacing side, double angle, double lastAngle) {
+	public void setRotation(@Nonnull Direction side, double angle, double lastAngle) {
 		this.angle = angle;
 		this.lastAngle = lastAngle;
 	}
@@ -345,7 +345,7 @@ public class TileEntityAxle extends TileEntity implements ITickable, IAxle, IHas
 		}
 
 		@Override
-		public double getPower(EnumFacing from) {
+		public double getPower(Direction from) {
 			if(from == null || isValidSide(from)) {
 				//this should only really be called on block break.
 				return getActualPower();
@@ -362,7 +362,7 @@ public class TileEntityAxle extends TileEntity implements ITickable, IAxle, IHas
 		}
 
 		@Override
-        public void setPower(double value, EnumFacing from) {
+        public void setPower(double value, Direction from) {
         	if(from == null /*&& isBroken()*/) {
         		forwardPower = 0;
         		backwardPower = 0;
@@ -383,7 +383,7 @@ public class TileEntityAxle extends TileEntity implements ITickable, IAxle, IHas
         }
 
 		@Override
-		public boolean isInput(EnumFacing from) {
+		public boolean isInput(Direction from) {
 			/*checkAndSetInput(from);
 			if(inputSide != null && from != null) {
 				return inputSide == from;
@@ -392,7 +392,7 @@ public class TileEntityAxle extends TileEntity implements ITickable, IAxle, IHas
 		}
 
 		@Override
-		public boolean isOutput(EnumFacing from) {
+		public boolean isOutput(Direction from) {
 			/*if(from != null && inputSide != null) {
 				return inputSide.getOpposite() == from;
 			}*/
@@ -400,13 +400,13 @@ public class TileEntityAxle extends TileEntity implements ITickable, IAxle, IHas
 		}
 
 		@Override
-		public void writeToNBT(NBTTagCompound tag) {
-			tag.setDouble("forwardPower",forwardPower);
-			tag.setDouble("backwardPower",backwardPower);
+		public void writeToNBT(CompoundNBT tag) {
+			tag.putDouble("forwardPower",forwardPower);
+			tag.putDouble("backwardPower",backwardPower);
 		}
 
 		@Override
-		public void readFromNBT(NBTTagCompound tag) {
+		public void readFromNBT(CompoundNBT tag) {
 			forwardPower = tag.getDouble("forwardPower");
 			backwardPower = tag.getDouble("backwardPower");
 		}

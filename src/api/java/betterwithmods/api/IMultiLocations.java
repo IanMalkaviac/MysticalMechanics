@@ -1,6 +1,6 @@
 package betterwithmods.api;
 
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 
 /**
  * Used by Items and Blocks with a model location relative to their metadata.

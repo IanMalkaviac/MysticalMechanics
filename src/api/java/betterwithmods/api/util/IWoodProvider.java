@@ -1,11 +1,11 @@
 package betterwithmods.api.util;
 
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 
 public interface IWoodProvider {
 
-    boolean match(IBlockState state);
+    boolean match(BlockState state);
 
-    IWood getWood(IBlockState state);
+    IWood getWood(BlockState state);
 
 }

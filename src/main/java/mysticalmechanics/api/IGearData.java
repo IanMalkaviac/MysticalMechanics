@@ -1,11 +1,11 @@
 package mysticalmechanics.api;
 
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 
 public interface IGearData {
-    void readFromNBT(NBTTagCompound tag);
+    void readFromNBT(CompoundNBT tag);
 
-    NBTTagCompound writeToNBT(NBTTagCompound tag);
+    CompoundNBT writeToNBT(CompoundNBT tag);
 
     boolean isDirty();
 }

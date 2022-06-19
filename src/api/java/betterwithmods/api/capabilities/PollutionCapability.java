@@ -1,8 +1,8 @@
 package betterwithmods.api.capabilities;
 
 import betterwithmods.api.tile.IPollutant;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.INBT;
+import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 
@@ -12,12 +12,12 @@ public class PollutionCapability {
 
     public static class Impl implements Capability.IStorage<IPollutant> {
         @Override
-        public NBTBase writeNBT(Capability<IPollutant> capability, IPollutant pollutant, EnumFacing side) {
+        public INBT writeNBT(Capability<IPollutant> capability, IPollutant pollutant, Direction side) {
             return null;
         }
 
         @Override
-        public void readNBT(Capability<IPollutant> capability, IPollutant pollutant, EnumFacing side, NBTBase nbt) {
+        public void readNBT(Capability<IPollutant> capability, IPollutant pollutant, Direction side, INBT nbt) {
 
         }
     }

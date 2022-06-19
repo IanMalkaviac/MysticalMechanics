@@ -2,13 +2,16 @@ package mysticalmechanics.api;
 
 import mysticalmechanics.api.lubricant.ILubricant;
 import mysticalmechanics.api.lubricant.SimpleLubricant;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.creativetab.CreativeTabs;
+//import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
@@ -64,13 +67,13 @@ public interface IMysticalMechanicsAPI {
      */
     boolean isValidGear(ItemStack stack);
 
-    void registerLubricant(ResourceLocation resLoc, Function<NBTTagCompound, ILubricant> generator);
+    void registerLubricant(ResourceLocation resLoc, Function<CompoundNBT, ILubricant> generator);
 
     void registerSimpleLubricant(SimpleLubricant lubricant);
 
     void unregisterLubricant(ResourceLocation resLoc);
 
-    ILubricant deserializeLubricant(NBTTagCompound tag);
+    ILubricant deserializeLubricant(CompoundNBT tag);
 
     /**
      * Adds a unit for mechanical power.
@@ -122,11 +125,11 @@ public interface IMysticalMechanicsAPI {
      */
     IConfigValue getConfigValue(String key);
 
-    CreativeTabs getCreativeTab();
+    ItemGroup getItemGroup();
 
-    void pushPower(TileEntity tileSelf, EnumFacing sideSelf, IMechCapability capSelf, boolean hasGear);
+    void pushPower(TileEntity tileSelf, Direction sideSelf, IMechCapability capSelf, boolean hasGear);
 
-    void pullPower(TileEntity tileSelf, EnumFacing sideSelf, IMechCapability capSelf, boolean hasGear);
+    void pullPower(TileEntity tileSelf, Direction sideSelf, IMechCapability capSelf, boolean hasGear);
 
     /**
      *
@@ -134,14 +137,14 @@ public interface IMysticalMechanicsAPI {
      * @param facing The side to check
      * @return Whether the player is currently targeting this side. If the player is sneaking, this returns whether the opposite side is targeted.
      */
-    boolean isGearHit(TileEntity tile, EnumFacing facing);
+    boolean isGearHit(TileEntity tile, Direction facing);
 
     /**
      *
      *
      * @param gear The gear held by the player
      * @param hasGear Whether this side has a gear attached
-     * @param sideHit output from {@link #isGearHit(TileEntity, EnumFacing)}
+     * @param sideHit output from {@link #isGearHit(TileEntity, Direction)}
      * @param canAttach Whether we can attach the gear on this side
      * @return Whether the gear hologram should render
      */
@@ -170,7 +173,7 @@ public interface IMysticalMechanicsAPI {
      * @param axis The axis of the axle
      * @param angle The angle of the axle
      */
-    void renderAxle(ModelResourceLocation resLoc, EnumFacing.Axis axis, float angle);
+    void renderAxle(ModelResourceLocation resLoc, Direction.Axis axis, float angle);
 
     /**
      * You can call this (preferably in rendering) to sync rotations. Axles use this to ensure they're all aligned.
@@ -178,5 +181,5 @@ public interface IMysticalMechanicsAPI {
      * @param tile The tile that will sync its rotation. Must implement IHasRotation or nothing will happen.
      * @param checkDirection The face in which to check for adjacent rotating neighbors.
      */
-    void syncAngle(TileEntity tile, EnumFacing checkDirection);
+    void syncAngle(TileEntity tile, Direction checkDirection);
 }

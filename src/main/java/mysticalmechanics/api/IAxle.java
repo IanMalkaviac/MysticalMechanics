@@ -1,15 +1,15 @@
 package mysticalmechanics.api;
 
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 
 public interface IAxle {
     default BlockPos getLeftConnection() {
-        return getConnection(EnumFacing.AxisDirection.NEGATIVE);
+        return getConnection(Direction.AxisDirection.NEGATIVE);
     }
 
     default BlockPos getRightConnection() {
-        return getConnection(EnumFacing.AxisDirection.POSITIVE);
+        return getConnection(Direction.AxisDirection.POSITIVE);
     }
 
     /**
@@ -18,7 +18,7 @@ public interface IAxle {
      * @param direction either positive or negative axis direction.
      * @return the position of the last segment of axle in that direction.
      */
-    BlockPos getConnection(EnumFacing.AxisDirection direction);
+    BlockPos getConnection(Direction.AxisDirection direction);
 
     /**
      * Use this to obtain the length of the axle.

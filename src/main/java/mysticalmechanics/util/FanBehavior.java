@@ -8,7 +8,7 @@ import mysticalmechanics.api.MysticalMechanicsAPI;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 
@@ -17,17 +17,17 @@ import java.util.List;
 
 public class FanBehavior implements IGearBehavior {
     @Override
-    public double transformPower(TileEntity tile, @Nullable EnumFacing facing, ItemStack gear, double power) {
+    public double transformPower(TileEntity tile, @Nullable Direction facing, ItemStack gear, double power) {
         return 0;
     }
 
     @Override
-    public double transformVisualPower(TileEntity tile, @Nullable EnumFacing facing, ItemStack gear, double power) {
+    public double transformVisualPower(TileEntity tile, @Nullable Direction facing, ItemStack gear, double power) {
         return power;
     }
 
     @Override
-    public void visualUpdate(TileEntity tile, @Nullable EnumFacing facing, ItemStack gear) {
+    public void visualUpdate(TileEntity tile, @Nullable Direction facing, ItemStack gear) {
         //NOOP
     }
 
@@ -37,7 +37,7 @@ public class FanBehavior implements IGearBehavior {
     }
 
     @Override
-    public void tick(TileEntity tile, @Nullable EnumFacing facing, ItemStack gear, IGearData data, double powerIn, double powerOut) {
+    public void tick(TileEntity tile, @Nullable Direction facing, ItemStack gear, IGearData data, double powerIn, double powerOut) {
         IMechCapability capability = tile.getCapability(MysticalMechanicsAPI.MECH_CAPABILITY, facing);
         if(capability != null && capability.isOutput(facing)) {
             World world = tile.getWorld();

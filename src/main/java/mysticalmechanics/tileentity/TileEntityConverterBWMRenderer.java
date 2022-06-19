@@ -5,11 +5,11 @@ import mysticalmechanics.api.MysticalMechanicsAPI;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class TileEntityConverterBWMRenderer extends TileEntitySpecialRenderer<TileEntityConverterBWM> {
@@ -29,9 +29,9 @@ public class TileEntityConverterBWMRenderer extends TileEntitySpecialRenderer<Ti
     @Override
     public void render(TileEntityConverterBWM tile, double x, double y, double z, float partialTicks, int destroyStage, float tileAlpha) {
         if (tile != null) {
-            EntityPlayer player = Minecraft.getMinecraft().player;
+            PlayerEntity player = Minecraft.getMinecraft().player;
             ItemStack gearHologram = player.getHeldItemMainhand();
-            EnumFacing direction = tile.getSideMystMech();
+            Direction direction = tile.getSideMystMech();
             GearHelperTile gear = tile.gear;
             boolean sideHit = MysticalMechanicsAPI.IMPL.isGearHit(tile, direction);
             boolean renderHologram = MysticalMechanicsAPI.IMPL.shouldRenderHologram(gearHologram, !gear.isEmpty(), sideHit, tile.canAttachGear(direction, gearHologram));

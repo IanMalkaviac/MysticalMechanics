@@ -1,6 +1,6 @@
 package betterwithmods.api.tile;
 
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 public interface IAxle extends IMechanicalPower {
     byte getSignal();
@@ -11,9 +11,9 @@ public interface IAxle extends IMechanicalPower {
 
     int getMinimumInput();
 
-    EnumFacing[] getDirections();
+    Direction[] getDirections();
 
-    EnumFacing.Axis getAxis();
+    Direction.Axis getAxis();
 
     default boolean isFacing(IAxle axle) {
         return axle.getAxis() == this.getAxis();

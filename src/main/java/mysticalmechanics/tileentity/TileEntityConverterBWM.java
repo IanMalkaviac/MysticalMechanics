@@ -6,15 +6,15 @@ import mysticalmechanics.api.*;
 import mysticalmechanics.block.BlockConverterBWM;
 import mysticalmechanics.util.Misc;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
@@ -38,14 +38,14 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
         capabilityMystMech = new ConverterMystMechCapability();
         gear = new GearHelperTile(this, null){
             @Override
-            public EnumFacing getFacing() {
+            public Direction getFacing() {
                 return getSideMystMech();
             }
         };
     }
 
     public boolean canConvertToBWM() {
-        IBlockState state = world.getBlockState(pos);
+        BlockState state = world.getBlockState(pos);
         if(state.getBlock() instanceof BlockConverterBWM)
             return !state.getValue(BlockConverterBWM.on);
         else
@@ -53,7 +53,7 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
     }
 
     public boolean canConvertToMM() {
-        IBlockState state = world.getBlockState(pos);
+        BlockState state = world.getBlockState(pos);
         if(state.getBlock() instanceof BlockConverterBWM)
             return state.getValue(BlockConverterBWM.on);
         else
@@ -74,30 +74,30 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
             return 0;
     }
 
-    private double getGearInPower(EnumFacing facing) {
+    private double getGearInPower(Direction facing) {
         if(capabilityMystMech.isInput(facing))
             return capabilityMystMech.getExternalPower(facing);
         else
             return capabilityMystMech.getInternalPower(facing);
     }
 
-    private double getGearOutPower(EnumFacing facing) {
+    private double getGearOutPower(Direction facing) {
         if(capabilityMystMech.isOutput(facing))
             return capabilityMystMech.getExternalPower(facing);
         else
             return capabilityMystMech.getInternalPower(facing);
     }
 
-    public EnumFacing getSideBWM() {
+    public Direction getSideBWM() {
         return getFacing().getOpposite();
     }
 
-    public EnumFacing getFacing() {
-        IBlockState state = world.getBlockState(pos);
+    public Direction getFacing() {
+        BlockState state = world.getBlockState(pos);
         return state.getValue(BlockConverterBWM.facing);
     }
 
-    public EnumFacing getSideMystMech() {
+    public Direction getSideMystMech() {
         return getFacing();
     }
 
@@ -124,16 +124,16 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound tag) {
+    public CompoundNBT writeToNBT(CompoundNBT tag) {
         super.writeToNBT(tag);
         capabilityMystMech.writeToNBT(tag);
         tag.setInteger("bwmPower",capabilityBWM.power);
-        tag.setTag("side", gear.writeToNBT(new NBTTagCompound()));
+        tag.setTag("side", gear.writeToNBT(new CompoundNBT()));
         return tag;
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tag) {
+    public void readFromNBT(CompoundNBT tag) {
         super.readFromNBT(tag);
         capabilityMystMech.readFromNBT(tag);
         capabilityBWM.power = tag.getInteger("bwmPower");
@@ -143,8 +143,8 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
     }
 
     @Override
-    public NBTTagCompound getUpdateTag() {
-        return writeToNBT(new NBTTagCompound());
+    public CompoundNBT getUpdateTag() {
+        return writeToNBT(new CompoundNBT());
     }
 
     @Nullable
@@ -159,7 +159,7 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
     }
 
     @Override
-    public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+    public boolean hasCapability(Capability<?> capability, Direction facing) {
         if (capability == MysticalMechanicsAPI.MECH_CAPABILITY && (facing == null || facing == getSideMystMech())) {
             return true;
         }
@@ -170,7 +170,7 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
     }
 
     @Override
-    public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+    public <T> T getCapability(Capability<T> capability, Direction facing) {
         if (capability == MysticalMechanicsAPI.MECH_CAPABILITY && (facing == null || facing == getSideMystMech())) {
             return MysticalMechanicsAPI.MECH_CAPABILITY.cast(capabilityMystMech);
         }
@@ -181,12 +181,12 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
     }
 
     @Override
-    public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState) {
+    public boolean shouldRefresh(World world, BlockPos pos, BlockState oldState, BlockState newState) {
         return oldState.getBlock() != newState.getBlock();
     }
 
     public void updateNeighbors() {
-        EnumFacing from = getSideMystMech();
+        Direction from = getSideMystMech();
 
         if(capabilityMystMech.isInput(from))
             MysticalMechanicsAPI.IMPL.pullPower(this, from, capabilityMystMech, !getGear(from).isEmpty());
@@ -196,10 +196,10 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
         markDirty();
     }
 
-    public boolean activate(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
-                            EnumFacing side, float hitX, float hitY, float hitZ) {
+    public boolean activate(World world, BlockPos pos, BlockState state, PlayerEntity player, EnumHand hand,
+                            Direction side, float hitX, float hitY, float hitZ) {
         ItemStack heldItem = player.getHeldItem(hand);
-        EnumFacing attachSide = side;
+        Direction attachSide = side;
         if(hand == EnumHand.OFF_HAND)
             return false;
         if(side == getSideBWM()) {
@@ -235,16 +235,16 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
         return false;
     }
 
-    public void rotateTile(World world, BlockPos pos, EnumFacing side) {
-        IBlockState state = world.getBlockState(pos);
-        EnumFacing currentFacing = state.getValue(BlockConverterBWM.facing);
+    public void rotateTile(World world, BlockPos pos, Direction side) {
+        BlockState state = world.getBlockState(pos);
+        Direction currentFacing = state.getValue(BlockConverterBWM.facing);
 
         capabilityMystMech.setPower(0,null);
         world.setBlockState(pos,state.withProperty(BlockConverterBWM.facing,currentFacing.rotateAround(side.getAxis())));
         capabilityMystMech.onPowerChange();
     }
 
-    public void breakBlock(World world, BlockPos pos, IBlockState state, EntityPlayer player) {
+    public void breakBlock(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         ItemStack stack = gear.detach(player);
         if (!world.isRemote) {
             world.spawnEntity(new EntityItem(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack));
@@ -261,7 +261,7 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
     }
 
     @Override
-    public void attachGear(EnumFacing facing, ItemStack stack, EntityPlayer player) {
+    public void attachGear(Direction facing, ItemStack stack, PlayerEntity player) {
         if (!canAttachGear(facing, stack))
             return;
         gear.attach(null, stack);
@@ -270,7 +270,7 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
     }
 
     @Override
-    public ItemStack detachGear(EnumFacing facing, EntityPlayer player) {
+    public ItemStack detachGear(Direction facing, PlayerEntity player) {
         if (!canAttachGear(facing))
             return ItemStack.EMPTY;
         ItemStack removed = gear.detach(null);
@@ -280,17 +280,17 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
     }
 
     @Override
-    public ItemStack getGear(EnumFacing facing) {
+    public ItemStack getGear(Direction facing) {
         return gear.getGear();
     }
 
     @Override
-    public boolean canAttachGear(EnumFacing facing, ItemStack stack) {
+    public boolean canAttachGear(Direction facing, ItemStack stack) {
         return canAttachGear(facing) && gear.canAttach(stack);
     }
 
     @Override
-    public boolean canAttachGear(EnumFacing facing) {
+    public boolean canAttachGear(Direction facing) {
         return facing == getSideMystMech();
     }
 
@@ -303,26 +303,26 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
         int power;
 
         @Override
-        public int getMechanicalInput(EnumFacing facing) {
+        public int getMechanicalInput(Direction facing) {
             if(facing == getSideBWM())
                 return BWMAPI.IMPLEMENTATION.getPowerOutput(world, pos.offset(facing), facing.getOpposite());
             return 0;
         }
 
         @Override
-        public int getMechanicalOutput(EnumFacing facing) {
+        public int getMechanicalOutput(Direction facing) {
             if(facing == getSideBWM())
                 return convertToBWM();
             return -1;
         }
 
         @Override
-        public int getMaximumInput(EnumFacing facing) {
+        public int getMaximumInput(Direction facing) {
             return Integer.MAX_VALUE;
         }
 
         @Override
-        public int getMinimumInput(EnumFacing facing) {
+        public int getMinimumInput(Direction facing) {
             return 0;
         }
 
@@ -346,7 +346,7 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
         double powerExternal;
 
         @Override
-        public double getPower(EnumFacing from) {
+        public double getPower(Direction from) {
             if (from == null)
                 return super.getPower(from);
 
@@ -359,14 +359,14 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
             return behavior.transformPower(TileEntityConverterBWM.this, from, gearHelper.getGear(), gearHelper.getData(), getInternalPower(from));
         }
 
-        private double getInternalPower(EnumFacing from) {
+        private double getInternalPower(Direction from) {
             if (from == getSideMystMech())
                 return canConvertToMM() ? convertToMystMech() : power;
             else
                 return 0;
         }
 
-        public double getExternalPower(EnumFacing from) {
+        public double getExternalPower(Direction from) {
             if (from == getSideMystMech())
                 return powerExternal;
             else
@@ -374,7 +374,7 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
         }
 
         @Override
-        public void setPower(double value, EnumFacing from) {
+        public void setPower(double value, Direction from) {
             if (from == null)
                 super.setPower(value, from);
 
@@ -398,7 +398,7 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
         }
 
         @Override
-        public double getVisualPower(EnumFacing from) {
+        public double getVisualPower(Direction from) {
             if (from == null)
                 return super.getPower(from);
             if (from != getSideMystMech())
@@ -419,25 +419,25 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
         }
 
         @Override
-        public boolean isInput(EnumFacing from) {
+        public boolean isInput(Direction from) {
             return from == getSideMystMech() && canConvertToBWM();
         }
 
         @Override
-        public boolean isOutput(EnumFacing from) {
+        public boolean isOutput(Direction from) {
             return from == getSideMystMech() && canConvertToMM();
         }
 
         @Override
-        public void readFromNBT(NBTTagCompound tag) {
+        public void readFromNBT(CompoundNBT tag) {
             super.readFromNBT(tag);
             powerExternal = tag.getDouble("powerExternal");
         }
 
         @Override
-        public void writeToNBT(NBTTagCompound tag) {
+        public void writeToNBT(CompoundNBT tag) {
             super.writeToNBT(tag);
-            tag.setDouble("powerExternal", powerExternal);
+            tag.putDouble("powerExternal", powerExternal);
         }
     }
 }

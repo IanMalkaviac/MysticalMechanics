@@ -1,22 +1,22 @@
 package betterwithmods.api.tile;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 
 import javax.annotation.Nullable;
 
 public interface ISteamPower {
-    void readSteamPower(NBTTagCompound tag);
+    void readSteamPower(CompoundNBT tag);
 
-    NBTTagCompound writeSteamPower(NBTTagCompound tag);
+    CompoundNBT writeSteamPower(CompoundNBT tag);
 
-    int getHeatUnits(EnumFacing facing);
+    int getHeatUnits(Direction facing);
 
     void calculateHeatUnits();
 
-    int getSteamPower(EnumFacing facing);
+    int getSteamPower(Direction facing);
 
-    void calculateSteamPower(@Nullable EnumFacing facing);
+    void calculateSteamPower(@Nullable Direction facing);
 
     void setSteamUpdate(boolean update);
 

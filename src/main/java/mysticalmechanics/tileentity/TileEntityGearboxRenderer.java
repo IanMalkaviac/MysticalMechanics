@@ -3,15 +3,15 @@ package mysticalmechanics.tileentity;
 import mysticalmechanics.api.GearHelperTile;
 import mysticalmechanics.api.MysticalMechanicsAPI;
 import mysticalmechanics.block.BlockGearbox;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.awt.*;
@@ -33,14 +33,14 @@ public class TileEntityGearboxRenderer extends TileEntitySpecialRenderer<TileEnt
     @Override
     public void render(TileEntityGearbox tile, double x, double y, double z, float partialTicks, int destroyStage, float tileAlpha){
         if (tile != null){
-			IBlockState state = tile.getWorld().getBlockState(tile.getPos());
+			BlockState state = tile.getWorld().getBlockState(tile.getPos());
             if (state.getBlock() instanceof BlockGearbox){
-            	EntityPlayer player = Minecraft.getMinecraft().player;
+            	PlayerEntity player = Minecraft.getMinecraft().player;
 				ItemStack gearHologram = player.getHeldItemMainhand();
 
 				int face = 0;
 				for (GearHelperTile gear : tile.gears) {
-					EnumFacing direction = EnumFacing.VALUES[face];
+					Direction direction = Direction.VALUES[face];
 					boolean sideHit = MysticalMechanicsAPI.IMPL.isGearHit(tile, direction);
 					boolean renderHologram = MysticalMechanicsAPI.IMPL.shouldRenderHologram(gearHologram, !gear.isEmpty(), sideHit, tile.canAttachGear(direction, gearHologram));
 					if (!gear.isEmpty() || renderHologram) {

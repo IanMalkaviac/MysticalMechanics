@@ -1,18 +1,18 @@
 package mysticalmechanics.api;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 
 public class DefaultMechCapability implements IMechCapability {
     public double power = 0;
 
     @Override
-    public double getPower(EnumFacing from) {
+    public double getPower(Direction from) {
         return power;
     }
 
     @Override
-    public void setPower(double value, EnumFacing from) {
+    public void setPower(double value, Direction from) {
         double oldPower = power;
         this.power = value;
         if (oldPower != value) {
@@ -26,12 +26,12 @@ public class DefaultMechCapability implements IMechCapability {
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tag) {
+    public void readFromNBT(CompoundNBT tag) {
         power = tag.getDouble("mech_power");
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound tag) {
-        tag.setDouble("mech_power",power);
+    public void writeToNBT(CompoundNBT tag) {
+        tag.putDouble("mech_power",power);
     }
 }

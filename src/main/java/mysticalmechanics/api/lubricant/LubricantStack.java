@@ -1,7 +1,7 @@
 package mysticalmechanics.api.lubricant;
 
 import mysticalmechanics.api.MysticalMechanicsAPI;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 
 public class LubricantStack {
     private ILubricant lubricant;
@@ -12,7 +12,7 @@ public class LubricantStack {
         this.amount = amount;
     }
 
-    public LubricantStack(NBTTagCompound tag) {
+    public LubricantStack(CompoundNBT tag) {
         readFromNBT(tag);
     }
 
@@ -40,19 +40,19 @@ public class LubricantStack {
         amount -= n;
     }
 
-    NBTTagCompound writeToNBT(NBTTagCompound tag) {
+    CompoundNBT writeToNBT(CompoundNBT tag) {
         lubricant.writeToNBT(tag);
-        tag.setInteger("amount", amount);
+        tag.putInt("amount", amount);
         return tag;
     }
 
-    void readFromNBT(NBTTagCompound tag) {
+    void readFromNBT(CompoundNBT tag) {
         lubricant = MysticalMechanicsAPI.IMPL.deserializeLubricant(tag);
-        amount = tag.getInteger("amount");
+        amount = tag.getInt("amount");
     }
 
-    public NBTTagCompound serializeNBT() {
-        return writeToNBT(new NBTTagCompound());
+    public CompoundNBT serializeNBT() {
+        return writeToNBT(new CompoundNBT());
     }
 
     public String getUnlocalizedName() {

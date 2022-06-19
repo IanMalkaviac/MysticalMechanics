@@ -1,14 +1,14 @@
 package mysticalmechanics.api;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 import javax.annotation.Nullable;
 
 public interface IGearbox {
     @Deprecated
-    default void attachGear(EnumFacing facing, ItemStack stack) {
+    default void attachGear(Direction facing, ItemStack stack) {
         attachGear(facing, stack, null);
     }
 
@@ -17,12 +17,12 @@ public interface IGearbox {
      * @param player the player attaching the gear, can be null
      * @param stack the gear to attach.
      */
-    default void attachGear(EnumFacing facing, ItemStack stack, @Nullable EntityPlayer player) {
+    default void attachGear(Direction facing, ItemStack stack, @Nullable PlayerEntity player) {
         attachGear(facing, stack);
     }
 
     @Deprecated
-    default ItemStack detachGear(EnumFacing facing) {
+    default ItemStack detachGear(Direction facing) {
         return detachGear(facing, null);
     }
 
@@ -31,7 +31,7 @@ public interface IGearbox {
      * @param player the player removing the gear, can be null
      * @return the removed gear. Does not need to be the same gear as previously attached, but could be a damaged version or an empty stack.
      */
-    default ItemStack detachGear(EnumFacing facing, @Nullable EntityPlayer player) {
+    default ItemStack detachGear(Direction facing, @Nullable PlayerEntity player) {
         return detachGear(facing);
     }
 
@@ -39,20 +39,20 @@ public interface IGearbox {
      * @param facing the side to check for.
      * @return the currently attached gear on this face, or ItemStack.EMPTY if none.
      */
-    ItemStack getGear(EnumFacing facing);
+    ItemStack getGear(Direction facing);
 
     /**
      * @param facing the side to check for.
      * @param stack an ItemStack representing a gear.
      * @return whether the specified stack can be attached on this face as a gear.
      */
-    boolean canAttachGear(EnumFacing facing, ItemStack stack);
+    boolean canAttachGear(Direction facing, ItemStack stack);
 
     /**
      * @param facing the side to check for.
      * @return whether the specified face can even have a gear attached.
      */
-    default boolean canAttachGear(EnumFacing facing) {
+    default boolean canAttachGear(Direction facing) {
         return true;
     }
 

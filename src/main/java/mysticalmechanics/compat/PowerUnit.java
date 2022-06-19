@@ -10,7 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -22,9 +22,9 @@ public class PowerUnit implements IElement {
     public boolean input;
     public boolean output;
     public ItemStack gear;
-    public EnumFacing facing;
+    public Direction facing;
 
-    public PowerUnit(double power, boolean input, boolean output, ItemStack gear, EnumFacing facing) {
+    public PowerUnit(double power, boolean input, boolean output, ItemStack gear, Direction facing) {
         this.power = power;
         this.input = input;
         this.output = output;
@@ -32,7 +32,7 @@ public class PowerUnit implements IElement {
         this.facing = facing;
     }
 
-    @SideOnly(Side.CLIENT)
+    //@SideOnly(Side.CLIENT)
     private String format() {
         IMechUnit unit = MysticalMechanicsAPI.IMPL.getDefaultUnit();
         if(input == output)
@@ -44,7 +44,7 @@ public class PowerUnit implements IElement {
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
+    //@SideOnly(Side.CLIENT)
     public void render(int x, int y) {
         String text = format();
         if(!gear.isEmpty()) {
@@ -54,14 +54,14 @@ public class PowerUnit implements IElement {
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
+    //@SideOnly(Side.CLIENT)
     public int getWidth() {
         String text = format();
         return Minecraft.getMinecraft().fontRenderer.getStringWidth(text)+10;
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
+    //@SideOnly(Side.CLIENT)
     public int getHeight() {
         return 10;
     }
@@ -94,7 +94,7 @@ public class PowerUnit implements IElement {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            EnumFacing facing = wrapper.readEnumValue(EnumFacing.class);
+            Direction facing = wrapper.readEnumValue(Direction.class);
             return new PowerUnit(power,input,output,gear,facing);
         }
     }

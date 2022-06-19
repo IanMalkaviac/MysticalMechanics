@@ -2,7 +2,7 @@ package mysticalmechanics.block;
 
 import mysticalmechanics.tileentity.TileEntityMergebox;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
@@ -15,7 +15,7 @@ public class BlockMergebox extends BlockGearbox {
 
     @Nullable
     @Override
-    public TileEntity createTileEntity(World world, IBlockState state) {
+    public TileEntity createTileEntity(World world, BlockState state) {
         return new TileEntityMergebox();
     }
 }

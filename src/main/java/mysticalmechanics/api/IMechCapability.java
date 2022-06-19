@@ -1,7 +1,7 @@
 package mysticalmechanics.api;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 
 public interface IMechCapability {
     /**
@@ -11,9 +11,9 @@ public interface IMechCapability {
      * @param from the face from which power is retrieved. Use null for internal use.
      * @return how much power is provided from the specified face. Unitless. Convert using IMechUnit.
      */
-    double getPower(EnumFacing from);
+    double getPower(Direction from);
 
-    default double getVisualPower(EnumFacing from) {
+    default double getVisualPower(Direction from) {
         return getPower(from);
     }
 
@@ -24,7 +24,7 @@ public interface IMechCapability {
      * @param value how much power is provided. Unitless. Convert using IMechUnit.
      * @param from the face from which power is provided. Use null for internal use.
      */
-    void setPower(double value, EnumFacing from);
+    void setPower(double value, Direction from);
 
     /**
      * This method should be run when setPower changes the internal power to something other than what it was before.
@@ -32,15 +32,15 @@ public interface IMechCapability {
      */
     void onPowerChange();
 
-    default boolean isInput(EnumFacing from) {
+    default boolean isInput(Direction from) {
         return true;
     }
 
-    default boolean isOutput(EnumFacing from) {
+    default boolean isOutput(Direction from) {
         return true;
     }
 
-    default void writeToNBT(NBTTagCompound tag) {}
+    default void writeToNBT(CompoundNBT tag) {}
 
-    default void readFromNBT(NBTTagCompound tag) {}
+    default void readFromNBT(CompoundNBT tag) {}
 }

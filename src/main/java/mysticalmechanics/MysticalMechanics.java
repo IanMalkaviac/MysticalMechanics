@@ -11,12 +11,12 @@ import mysticalmechanics.handler.RegistryHandler;
 import mysticalmechanics.handler.RightClickHandler;
 import mysticalmechanics.util.FanBehavior;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.INBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
@@ -36,8 +36,8 @@ import java.awt.*;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-@Mod(modid = MysticalMechanics.MODID, acceptedMinecraftVersions = "[1.12, 1.13)")
-@Mod.EventBusSubscriber
+@Mod(MysticalMechanics.MODID)
+@Mod.EventBusSubscriber(modid = MysticalMechanics.MODID)
 public class MysticalMechanics
 {
     public static final String MODID = "mysticalmechanics";
@@ -46,10 +46,10 @@ public class MysticalMechanics
     @SidedProxy(clientSide = "mysticalmechanics.ClientProxy",serverSide = "mysticalmechanics.ServerProxy")
     public static IProxy proxy;
 
-    @Mod.Instance(MysticalMechanics.MODID)
-    public static MysticalMechanics instance;
+    //@Mod.Instance(MysticalMechanics.MODID)
+    //public static MysticalMechanics instance;
 
-    public static CreativeTabs creativeTab;
+    public static ItemGroup itemGroup;
 
     public static Configuration config;
 
@@ -62,7 +62,7 @@ public class MysticalMechanics
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-        creativeTab = new CreativeTabs("mysticalmechanics.name") {
+        itemGroup = new ItemGroup("mysticalmechanics.name") {
             @Override
             public ItemStack getTabIconItem() {
                 return new ItemStack(RegistryHandler.IRON_GEAR);
@@ -116,24 +116,24 @@ public class MysticalMechanics
         CapabilityManager.INSTANCE.register(IMechCapability.class, new Capability.IStorage<IMechCapability>() {
             @Nullable
             @Override
-            public NBTBase writeNBT(Capability<IMechCapability> capability, IMechCapability instance, EnumFacing side) {
+            public INBT writeNBT(Capability<IMechCapability> capability, IMechCapability instance, Direction side) {
                 return null;
             }
 
             @Override
-            public void readNBT(Capability<IMechCapability> capability, IMechCapability instance, EnumFacing side, NBTBase nbt) {
+            public void readNBT(Capability<IMechCapability> capability, IMechCapability instance, Direction side, INBT nbt) {
                 //NOOP
             }
         }, DefaultMechCapability::new);
         CapabilityManager.INSTANCE.register(ILubricantCapability.class, new Capability.IStorage<ILubricantCapability>() {
             @Nullable
             @Override
-            public NBTBase writeNBT(Capability<ILubricantCapability> capability, ILubricantCapability instance, EnumFacing side) {
+            public INBT writeNBT(Capability<ILubricantCapability> capability, ILubricantCapability instance, Direction side) {
                 return null;
             }
 
             @Override
-            public void readNBT(Capability<ILubricantCapability> capability, ILubricantCapability instance, EnumFacing side, NBTBase nbt) {
+            public void readNBT(Capability<ILubricantCapability> capability, ILubricantCapability instance, Direction side, INBT nbt) {
                 //NOOP
             }
         }, DefaultLubricantCapability::new);
@@ -184,7 +184,7 @@ public class MysticalMechanics
             }
 
             @Override
-            @SideOnly(Side.CLIENT)
+            //@SideOnly(Side.CLIENT)
             public String format(double power) {
                 return I18n.format("mysticalmechanics.unit.default",format.format(power));
             }
@@ -192,26 +192,26 @@ public class MysticalMechanics
 
         MysticalMechanicsAPI.IMPL.registerGear(new ResourceLocation(MODID,"gear_iron"), new OreIngredient("gearIron"), new IGearBehavior() {
             @Override
-            public double transformPower(TileEntity tile, @Nullable EnumFacing facing, ItemStack gear, double power) {
+            public double transformPower(TileEntity tile, @Nullable Direction facing, ItemStack gear, double power) {
                 return power;
             }
         });
         MysticalMechanicsAPI.IMPL.registerGear(new ResourceLocation(MODID,"gear_gold"), new OreIngredient("gearGold"), new IGearBehavior() {
             @Override
-            public double transformPower(TileEntity tile, @Nullable EnumFacing facing, ItemStack gear, double power) {
+            public double transformPower(TileEntity tile, @Nullable Direction facing, ItemStack gear, double power) {
                 return power;
             }
         });
         MysticalMechanicsAPI.IMPL.registerGear(new ResourceLocation(MODID,"gear_gold_on"), Ingredient.fromItem(RegistryHandler.GOLD_GEAR_ON), new IGearBehavior() {
             @Override
-            public double transformPower(TileEntity tile, @Nullable EnumFacing facing, ItemStack gear, double power) {
+            public double transformPower(TileEntity tile, @Nullable Direction facing, ItemStack gear, double power) {
                 boolean powered = tile.getWorld().isBlockPowered(tile.getPos());
                 return !powered ? power : 0;
             }
         });
         MysticalMechanicsAPI.IMPL.registerGear(new ResourceLocation(MODID,"gear_gold_off"), Ingredient.fromItem(RegistryHandler.GOLD_GEAR_OFF), new IGearBehavior() {
             @Override
-            public double transformPower(TileEntity tile, @Nullable EnumFacing facing, ItemStack gear, double power) {
+            public double transformPower(TileEntity tile, @Nullable Direction facing, ItemStack gear, double power) {
                 boolean powered = tile.getWorld().isBlockPowered(tile.getPos());
                 return powered ? power : 0;
             }

@@ -1,11 +1,11 @@
 package betterwithmods.api.block;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.block.BlockState;
+import net.minecraft.util.Direction;
 
 public interface IAdvancedRotationPlacement {
 
-    IBlockState getStateForAdvancedRotationPlacement(IBlockState defaultState, EnumFacing facing, float hitX, float hitY, float hitZ);
+    BlockState getStateForAdvancedRotationPlacement(BlockState defaultState, Direction facing, float hitX, float hitY, float hitZ);
 
 
 

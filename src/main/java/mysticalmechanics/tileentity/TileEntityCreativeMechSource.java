@@ -2,13 +2,13 @@ package mysticalmechanics.tileentity;
 
 import mysticalmechanics.api.DefaultMechCapability;
 import mysticalmechanics.api.MysticalMechanicsAPI;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
@@ -27,12 +27,12 @@ public class TileEntityCreativeMechSource extends TileEntity implements ITickabl
     
     public DefaultMechCapability capability = new DefaultMechCapability(){
     	@Override
-    	public double getPower(EnumFacing from) {				
+    	public double getPower(Direction from) {				
     		return currentPower;
     	}
     	
     	@Override
-    	public void setPower(double value, EnumFacing from) {		
+    	public void setPower(double value, Direction from) {		
     		if(from == null) {
     			currentPower = value;
     			onPowerChange();
@@ -40,11 +40,11 @@ public class TileEntityCreativeMechSource extends TileEntity implements ITickabl
     	}
     	
     	@Override
-    	public boolean isOutput(EnumFacing face) {
+    	public boolean isOutput(Direction face) {
     		return true;
     	}
     	@Override
-    	public boolean isInput(EnumFacing face) {
+    	public boolean isInput(Direction face) {
     		return false;
     	}
 
@@ -61,15 +61,15 @@ public class TileEntityCreativeMechSource extends TileEntity implements ITickabl
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound tag){
+    public CompoundNBT writeToNBT(CompoundNBT tag){
         super.writeToNBT(tag);
-        tag.setDouble("mech_power", wantedPower[wantedPowerIndex]);
+        tag.putDouble("mech_power", wantedPower[wantedPowerIndex]);
         tag.setInteger("level",wantedPowerIndex);
         return tag;
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tag){
+    public void readFromNBT(CompoundNBT tag){
         super.readFromNBT(tag);
         if (tag.hasKey("mech_power")){
             capability.power = tag.getDouble("mech_power");
@@ -78,8 +78,8 @@ public class TileEntityCreativeMechSource extends TileEntity implements ITickabl
     }
 
     @Override
-    public NBTTagCompound getUpdateTag() {
-        return writeToNBT(new NBTTagCompound());
+    public CompoundNBT getUpdateTag() {
+        return writeToNBT(new CompoundNBT());
     }
 
     @Nullable
@@ -94,7 +94,7 @@ public class TileEntityCreativeMechSource extends TileEntity implements ITickabl
     }
 
     @Override
-    public boolean hasCapability(Capability<?> capability, EnumFacing facing){
+    public boolean hasCapability(Capability<?> capability, Direction facing){
         if (capability == MysticalMechanicsAPI.MECH_CAPABILITY){
             return true;
         }
@@ -102,7 +102,7 @@ public class TileEntityCreativeMechSource extends TileEntity implements ITickabl
     }
 
     @Override
-    public <T> T getCapability(Capability<T> capability, EnumFacing facing){
+    public <T> T getCapability(Capability<T> capability, Direction facing){
         if (capability == MysticalMechanicsAPI.MECH_CAPABILITY){
         	@SuppressWarnings("unchecked")
 			T result = (T) this.capability;
@@ -111,8 +111,8 @@ public class TileEntityCreativeMechSource extends TileEntity implements ITickabl
         return super.getCapability(capability, facing);
     }
 
-    public boolean activate(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
-                            EnumFacing side, float hitX, float hitY, float hitZ) {
+    public boolean activate(World world, BlockPos pos, BlockState state, PlayerEntity player, EnumHand hand,
+                            Direction side, float hitX, float hitY, float hitZ) {
         if(player.isSneaking())
             wantedPowerIndex = (wantedPowerIndex+wantedPower.length-1) % wantedPower.length;
         else
@@ -121,13 +121,13 @@ public class TileEntityCreativeMechSource extends TileEntity implements ITickabl
         return true;
     }
 
-    public void breakBlock(World world, BlockPos pos, IBlockState state, EntityPlayer player) {
+    public void breakBlock(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         capability.setPower(0f,null);
         updateNeighbors();
     }
 
     public void updateNeighbors(){
-        for (EnumFacing f : EnumFacing.values()){
+        for (Direction f : Direction.values()){
             MysticalMechanicsAPI.IMPL.pushPower(this, f, capability, true);
         }
     }

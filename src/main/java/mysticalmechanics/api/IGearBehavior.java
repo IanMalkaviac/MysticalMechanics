@@ -1,25 +1,25 @@
 package mysticalmechanics.api;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 import javax.annotation.Nullable;
 
 public interface IGearBehavior {
     IGearBehavior NO_BEHAVIOR = new IGearBehavior() {
         @Override
-        public double transformPower(TileEntity tile, @Nullable EnumFacing facing, ItemStack gear, IGearData data, double power) {
+        public double transformPower(TileEntity tile, @Nullable Direction facing, ItemStack gear, IGearData data, double power) {
             return power;
         }
     };
 
-    default void onAttach(TileEntity tile, @Nullable EnumFacing facing, ItemStack gear, IGearData data, EntityPlayer player) {
+    default void onAttach(TileEntity tile, @Nullable Direction facing, ItemStack gear, IGearData data, PlayerEntity player) {
         //NOOP
     }
 
-    default ItemStack onDetach(TileEntity tile, @Nullable EnumFacing facing, ItemStack gear, IGearData data, EntityPlayer player) {
+    default ItemStack onDetach(TileEntity tile, @Nullable Direction facing, ItemStack gear, IGearData data, PlayerEntity player) {
         return gear;
     }
 
@@ -32,16 +32,16 @@ public interface IGearBehavior {
      * @param power how much power would be returned at full efficiency (100%) (note: for the standard gearbox the division by the number of connections for output gears is already included here)
      * @return how much power will actually be returned. Should absolutely NEVER be greater than the power passed into this method, or the gear can lead to power loops!
      */
-    default double transformPower(TileEntity tile, @Nullable EnumFacing facing, ItemStack gear, double power) {
+    default double transformPower(TileEntity tile, @Nullable Direction facing, ItemStack gear, double power) {
         return transformPower(tile, facing, gear, null, power);
     }
 
     /**
-     * Works like {@link #transformPower(TileEntity, EnumFacing, ItemStack, double)}, but also accepts gear data
+     * Works like {@link #transformPower(TileEntity, Direction, ItemStack, double)}, but also accepts gear data
      *
      * @param data the gear's data container
      */
-    default double transformPower(TileEntity tile, @Nullable EnumFacing facing, ItemStack gear, IGearData data, double power) {
+    default double transformPower(TileEntity tile, @Nullable Direction facing, ItemStack gear, IGearData data, double power) {
         return transformPower(tile,facing,gear,power);
     }
 
@@ -54,16 +54,16 @@ public interface IGearBehavior {
      * @param power how much power would be returned at full efficiency (100%)
      * @return how much power will actually be returned.
      */
-    default double transformVisualPower(TileEntity tile, @Nullable EnumFacing facing, ItemStack gear, double power) {
+    default double transformVisualPower(TileEntity tile, @Nullable Direction facing, ItemStack gear, double power) {
         return transformPower(tile,facing,gear,power);
     }
 
     /**
-     * Works like {@link #transformVisualPower(TileEntity, EnumFacing, ItemStack, double)}, but also accepts gear data
+     * Works like {@link #transformVisualPower(TileEntity, Direction, ItemStack, double)}, but also accepts gear data
      *
      * @param data the gear's data container
      */
-    default double transformVisualPower(TileEntity tile, @Nullable EnumFacing facing, ItemStack gear, IGearData data, double power) {
+    default double transformVisualPower(TileEntity tile, @Nullable Direction facing, ItemStack gear, IGearData data, double power) {
         return transformVisualPower(tile, facing, gear, power);
     }
 
@@ -75,16 +75,16 @@ public interface IGearBehavior {
      * @param gear the ItemStack representing the attached gear
      */
     @Deprecated
-    default void visualUpdate(TileEntity tile, @Nullable EnumFacing facing, ItemStack gear) {
+    default void visualUpdate(TileEntity tile, @Nullable Direction facing, ItemStack gear) {
         //NOOP
     }
 
     /**
-     * Works like {@link #visualUpdate(TileEntity, EnumFacing, ItemStack)}, but also accepts gear data
+     * Works like {@link #visualUpdate(TileEntity, Direction, ItemStack)}, but also accepts gear data
      *
      * @param data the gear's data container
      */
-    default void visualUpdate(TileEntity tile, @Nullable EnumFacing facing, ItemStack gear, IGearData data, double powerIn, double powerOut) {
+    default void visualUpdate(TileEntity tile, @Nullable Direction facing, ItemStack gear, IGearData data, double powerIn, double powerOut) {
         visualUpdate(tile, facing, gear);
     }
 
@@ -93,11 +93,11 @@ public interface IGearBehavior {
     }
 
     @Deprecated
-    default void tick(TileEntity tile, @Nullable EnumFacing facing, ItemStack gear, double power) {
+    default void tick(TileEntity tile, @Nullable Direction facing, ItemStack gear, double power) {
         //NOOP
     }
 
-    default void tick(TileEntity tile, @Nullable EnumFacing facing, ItemStack gear, IGearData data, double powerIn, double powerOut) {
+    default void tick(TileEntity tile, @Nullable Direction facing, ItemStack gear, IGearData data, double powerIn, double powerOut) {
         tick(tile, facing, gear, powerIn);
     }
 

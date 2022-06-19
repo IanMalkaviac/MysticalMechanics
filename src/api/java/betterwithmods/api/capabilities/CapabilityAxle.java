@@ -2,8 +2,8 @@ package betterwithmods.api.capabilities;
 
 import betterwithmods.api.tile.IAxle;
 import net.minecraft.block.Block;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.INBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
@@ -16,12 +16,12 @@ public class CapabilityAxle {
 
     public static class Impl implements Capability.IStorage<IAxle> {
         @Override
-        public NBTBase writeNBT(Capability<IAxle> capability, IAxle mechanical, EnumFacing side) {
+        public INBT writeNBT(Capability<IAxle> capability, IAxle mechanical, Direction side) {
             return null;
         }
 
         @Override
-        public void readNBT(Capability<IAxle> capability, IAxle mechanical, EnumFacing side, NBTBase nbt) {
+        public void readNBT(Capability<IAxle> capability, IAxle mechanical, Direction side, INBT nbt) {
 
         }
     }
@@ -49,32 +49,32 @@ public class CapabilityAxle {
         }
 
         @Override
-        public EnumFacing[] getDirections() {
-            return new EnumFacing[0];
+        public Direction[] getDirections() {
+            return new Direction[0];
         }
 
         @Override
-        public EnumFacing.Axis getAxis() {
+        public Direction.Axis getAxis() {
             return null;
         }
 
         @Override
-        public int getMechanicalOutput(EnumFacing facing) {
+        public int getMechanicalOutput(Direction facing) {
             return 0;
         }
 
         @Override
-        public int getMechanicalInput(EnumFacing facing) {
+        public int getMechanicalInput(Direction facing) {
             return 0;
         }
 
         @Override
-        public int getMaximumInput(EnumFacing facing) {
+        public int getMaximumInput(Direction facing) {
             return 0;
         }
 
         @Override
-        public int getMinimumInput(EnumFacing facing) {
+        public int getMinimumInput(Direction facing) {
             return 0;
         }
 

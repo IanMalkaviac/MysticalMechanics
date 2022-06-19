@@ -1,7 +1,7 @@
 package betterwithmods.api.tile.dispenser;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.dispenser.IBlockSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
@@ -16,7 +16,7 @@ import net.minecraft.world.World;
 public interface IBehaviorCollect {
     NonNullList<ItemStack> collect(IBlockSource source);
 
-    default void breakBlock(World world, IBlockState state, BlockPos pos) {
+    default void breakBlock(World world, BlockState state, BlockPos pos) {
         world.playSound(null, pos, state.getBlock().getSoundType(state, world, pos, null).getPlaceSound(), SoundCategory.BLOCKS, 0.7F, 1.0F);
         state.getBlock().breakBlock(world, pos, state);
         world.playEvent(2001, pos, Block.getIdFromBlock(state.getBlock()));

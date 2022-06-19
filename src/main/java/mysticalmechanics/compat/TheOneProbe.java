@@ -9,11 +9,11 @@ import mysticalmechanics.api.MysticalMechanicsAPI;
 import mysticalmechanics.api.lubricant.ILubricant;
 import mysticalmechanics.api.lubricant.ILubricantCapability;
 import mysticalmechanics.api.lubricant.LubricantStack;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 
@@ -46,7 +46,7 @@ public class TheOneProbe implements Function<ITheOneProbe, Void>, IProbeInfoProv
     }
 
     @Override
-    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState blockState, IProbeHitData data) {
+    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
         TileEntity tile = world.getTileEntity(data.getPos());
         IGearbox gearbox = null;
 
@@ -57,14 +57,14 @@ public class TheOneProbe implements Function<ITheOneProbe, Void>, IProbeInfoProv
             probeInfo.text(TextStyleClass.LABEL + IProbeInfo.STARTLOC + "mysticalmechanics.probe.axle_length" + IProbeInfo.ENDLOC + " " + TextStyleClass.INFO + axle.getLength());
         }
 
-        EnumFacing currentFacing = data.getSideHit();
+        Direction currentFacing = data.getSideHit();
 
         if (tile != null) {
             List<MechInfoStruct> info = new ArrayList<>();
             List<LubricantInfoStruct> infoLubricant = new ArrayList<>();
             boolean canLubricate = false;
             if(mode == ProbeMode.EXTENDED)
-            for (EnumFacing facing : EnumFacing.VALUES) {
+            for (Direction facing : Direction.VALUES) {
                 boolean forceWrite = false;
                 ItemStack gear = ItemStack.EMPTY;
                 if (gearbox != null && gearbox.canAttachGear(facing)) {
@@ -128,7 +128,7 @@ public class TheOneProbe implements Function<ITheOneProbe, Void>, IProbeInfoProv
         }
     }
 
-    private void addMechPowerData(ProbeMode mode, IProbeInfo probeInfo, MechInfoStruct struct, ItemStack gear, EnumFacing facing) {
+    private void addMechPowerData(ProbeMode mode, IProbeInfo probeInfo, MechInfoStruct struct, ItemStack gear, Direction facing) {
         boolean input = struct.type == MechInfoType.Input || struct.type == MechInfoType.Both;
         boolean output = struct.type == MechInfoType.Output || struct.type == MechInfoType.Both;
         probeInfo.element(new PowerUnit(struct.power,input,output,gear,struct.facing));
@@ -143,9 +143,9 @@ public class TheOneProbe implements Function<ITheOneProbe, Void>, IProbeInfoProv
     class MechInfoStruct {
         MechInfoType type;
         double power;
-        EnumFacing facing;
+        Direction facing;
 
-        public MechInfoStruct(MechInfoType type, double power, EnumFacing facing) {
+        public MechInfoStruct(MechInfoType type, double power, Direction facing) {
             this.type = type;
             this.power = power;
             this.facing = facing;
@@ -159,7 +159,7 @@ public class TheOneProbe implements Function<ITheOneProbe, Void>, IProbeInfoProv
             return power;
         }
 
-        public EnumFacing getFacing() {
+        public Direction getFacing() {
             return facing;
         }
 

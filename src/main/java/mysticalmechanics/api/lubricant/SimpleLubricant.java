@@ -28,7 +28,7 @@ public class SimpleLubricant implements ILubricant {
 
     @Override
     public String getUnlocalizedName() {
-        return "mysticalmechanics.lubricant."+resLoc.getResourcePath();
+        return "mysticalmechanics.lubricant."+resLoc.getPath();
     }
 
     @Override

@@ -4,17 +4,17 @@ import mysticalmechanics.MysticalMechanics;
 import mysticalmechanics.api.*;
 import mysticalmechanics.api.lubricant.ILubricant;
 import mysticalmechanics.api.lubricant.SimpleLubricant;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import javax.annotation.Nonnull;
@@ -28,7 +28,7 @@ public class MysticalMechanicsAPIImpl implements IMysticalMechanicsAPI {
     public static LinkedHashMap<ResourceLocation, GearStruct> GEAR_REGISTRY = new LinkedHashMap<>();
     public static LinkedHashMap<String, IMechUnit> UNITS = new LinkedHashMap<>();
     private static HashMap<String,IConfigValue> CONFIG_VALUES = new HashMap<>();
-    private static LinkedHashMap<ResourceLocation, Function<NBTTagCompound, ILubricant>> LUBRICANT_REGISTRY = new LinkedHashMap<>();
+    private static LinkedHashMap<ResourceLocation, Function<CompoundNBT, ILubricant>> LUBRICANT_REGISTRY = new LinkedHashMap<>();
 
     private IMechUnit unitDefault;
     private boolean unitDirty;
@@ -99,7 +99,7 @@ public class MysticalMechanicsAPIImpl implements IMysticalMechanicsAPI {
     }
 
     @Override
-    public void registerLubricant(ResourceLocation resLoc, Function<NBTTagCompound, ILubricant> generator) {
+    public void registerLubricant(ResourceLocation resLoc, Function<CompoundNBT, ILubricant> generator) {
         LUBRICANT_REGISTRY.put(resLoc,generator);
     }
 
@@ -114,9 +114,9 @@ public class MysticalMechanicsAPIImpl implements IMysticalMechanicsAPI {
     }
 
     @Override
-    public ILubricant deserializeLubricant(NBTTagCompound tag) {
+    public ILubricant deserializeLubricant(CompoundNBT tag) {
         ResourceLocation resLoc = new ResourceLocation(tag.getString("type"));
-        Function<NBTTagCompound, ILubricant> generator = LUBRICANT_REGISTRY.get(resLoc);
+        Function<CompoundNBT, ILubricant> generator = LUBRICANT_REGISTRY.get(resLoc);
         if(generator != null)
             return generator.apply(tag);
         return null;
@@ -165,14 +165,14 @@ public class MysticalMechanicsAPIImpl implements IMysticalMechanicsAPI {
     }
 
     @Override
-    public CreativeTabs getCreativeTab() {
-        return MysticalMechanics.creativeTab;
+    public ItemGroup getItemGroup() {
+        return MysticalMechanics.itemGroup;
     }
 
     @Override
-    public void pushPower(TileEntity tileSelf, EnumFacing sideSelf, IMechCapability capSelf, boolean hasGear) {
+    public void pushPower(TileEntity tileSelf, Direction sideSelf, IMechCapability capSelf, boolean hasGear) {
         TileEntity tileOther = tileSelf.getWorld().getTileEntity(tileSelf.getPos().offset(sideSelf));
-        EnumFacing sideOther = sideSelf.getOpposite();
+        Direction sideOther = sideSelf.getOpposite();
         if(tileOther != null) {
             IMechCapability capOther = tileOther.getCapability(MysticalMechanicsAPI.MECH_CAPABILITY, sideOther);
             if(capOther != null && !capSelf.isInput(sideSelf)) {
@@ -185,9 +185,9 @@ public class MysticalMechanicsAPIImpl implements IMysticalMechanicsAPI {
     }
 
     @Override
-    public void pullPower(TileEntity tileSelf, EnumFacing sideSelf, IMechCapability capSelf, boolean hasGear) {
+    public void pullPower(TileEntity tileSelf, Direction sideSelf, IMechCapability capSelf, boolean hasGear) {
         TileEntity tileOther = tileSelf.getWorld().getTileEntity(tileSelf.getPos().offset(sideSelf));
-        EnumFacing sideOther = sideSelf.getOpposite();
+        Direction sideOther = sideSelf.getOpposite();
         boolean hasValidTile = false;
         if(tileOther != null) {
             IMechCapability capOther = tileOther.getCapability(MysticalMechanicsAPI.MECH_CAPABILITY, sideOther);
@@ -204,7 +204,7 @@ public class MysticalMechanicsAPIImpl implements IMysticalMechanicsAPI {
     }
 
     @Override
-    public boolean isGearHit(TileEntity tile, EnumFacing facing) {
+    public boolean isGearHit(TileEntity tile, Direction facing) {
         return MysticalMechanics.proxy.isGearHit(tile, facing);
     }
 
@@ -227,12 +227,12 @@ public class MysticalMechanicsAPIImpl implements IMysticalMechanicsAPI {
     }
 
     @Override
-    public void renderAxle(ModelResourceLocation resLoc, EnumFacing.Axis axis, float angle) {
+    public void renderAxle(ModelResourceLocation resLoc, Direction.Axis axis, float angle) {
         MysticalMechanics.proxy.renderAxle(resLoc, axis, angle);
     }
 
     @Override
-    public void syncAngle(TileEntity tile, EnumFacing checkDirection) {
+    public void syncAngle(TileEntity tile, Direction checkDirection) {
         if (!(tile instanceof IHasRotation))
             return;
         BlockPos axlePos = tile.getPos().offset(checkDirection);

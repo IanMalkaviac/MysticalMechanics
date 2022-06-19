@@ -1,9 +1,9 @@
 package mysticalmechanics.api;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 
@@ -11,21 +11,21 @@ import javax.annotation.Nullable;
 
 public class GearHelperTile extends GearHelper {
     TileEntity tile;
-    EnumFacing facing;
+    Direction facing;
 
     double angle;
     double lastAngle;
 
-    public GearHelperTile(TileEntity tile, EnumFacing facing) {
+    public GearHelperTile(TileEntity tile, Direction facing) {
         this.tile = tile;
         this.facing = facing;
     }
 
-    public void setFacing(EnumFacing facing) {
+    public void setFacing(Direction facing) {
         this.facing = facing;
     }
 
-    public EnumFacing getFacing() {
+    public Direction getFacing() {
         return facing;
     }
 
@@ -42,7 +42,7 @@ public class GearHelperTile extends GearHelper {
     }
 
     @Override
-    public void attach(@Nullable EntityPlayer player, ItemStack stack) {
+    public void attach(@Nullable PlayerEntity player, ItemStack stack) {
         super.attach(player, stack);
         IGearBehavior behavior = getBehavior();
         behavior.onAttach(tile, getFacing(), gear, data, player);
@@ -50,7 +50,7 @@ public class GearHelperTile extends GearHelper {
     }
 
     @Override
-    public ItemStack detach(@Nullable EntityPlayer player) {
+    public ItemStack detach(@Nullable PlayerEntity player) {
         ItemStack stack;
         IGearBehavior behavior = getBehavior();
         stack = behavior.onDetach(tile, getFacing(), gear, data, player);

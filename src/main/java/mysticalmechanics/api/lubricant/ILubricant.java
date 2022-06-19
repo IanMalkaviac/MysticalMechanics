@@ -1,6 +1,6 @@
 package mysticalmechanics.api.lubricant;
 
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 
 import java.awt.*;
@@ -34,10 +34,10 @@ public interface ILubricant {
         return getDouble("heat",1);
     }
 
-    default NBTTagCompound writeToNBT(NBTTagCompound tag) {
-        tag.setString("type",getType().toString());
+    default CompoundNBT writeToNBT(CompoundNBT tag) {
+        tag.putString("type",getType().toString());
         return tag;
     }
 
-    default void readFromNBT(NBTTagCompound tag) {}
+    default void readFromNBT(CompoundNBT tag) {}
 }

@@ -1,8 +1,8 @@
 package mysticalmechanics.api.lubricant;
 
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.tileentity.TileEntity;
 
 import java.util.ArrayList;
@@ -66,21 +66,21 @@ public class TileLubricantCapability extends DefaultLubricantCapability {
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound tag) {
-        NBTTagList tagList = new NBTTagList();
+    public CompoundNBT writeToNBT(CompoundNBT tag) {
+        ListNBT tagList = new ListNBT();
         for (LubricantStack stack : lubricants) {
-            tagList.appendTag(stack.serializeNBT());
+            tagList.add(stack.serializeNBT());
         }
-        tag.setTag("lubricants", tagList);
+        tag.put("lubricants", tagList);
         return tag;
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tag) {
-        NBTTagList tagList = tag.getTagList("lubricants", 10);
+    public void readFromNBT(CompoundNBT tag) {
+        ListNBT tagList = tag.getList("lubricants", 10);
         lubricants.clear();
-        for (NBTBase compound : tagList) {
-            lubricants.add(new LubricantStack((NBTTagCompound) compound));
+        for (INBT compound : tagList) {
+            lubricants.add(new LubricantStack((CompoundNBT) compound));
         }
     }
 }

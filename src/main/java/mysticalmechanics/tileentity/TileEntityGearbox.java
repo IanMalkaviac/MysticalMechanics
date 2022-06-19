@@ -7,15 +7,17 @@ import mysticalmechanics.block.BlockGearbox;
 import mysticalmechanics.handler.RegistryHandler;
 import mysticalmechanics.util.ISoundController;
 import mysticalmechanics.util.Misc;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.state.IStateHolder;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.SoundCategory;
@@ -30,7 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox, ISoundController {
-    EnumFacing from = null;       
+    Direction from = null;       
     protected boolean isBroken;
     public int connections = 0;
     public GearHelperTile[] gears = new GearHelperTile[6];
@@ -57,7 +59,7 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
         super();
         capability = createCapability();
         for(int i = 0; i < gears.length; i++)
-            gears[i] = new GearHelperTile(this, EnumFacing.getFront(i));
+            gears[i] = new GearHelperTile(this, Direction.getFront(i));
         lubricant = new TileLubricantCapability(this, 1000);
     }
 
@@ -66,17 +68,17 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
     }
 
     public void updateNeighbors() {
-        IBlockState state = world.getBlockState(getPos());
+        BlockState state = world.getBlockState(getPos());
         
         //sets Gearbox Input.
         if (state.getBlock() instanceof BlockGearbox) {
-            from = state.getValue(BlockGearbox.facing);
+            from = state..getValue(BlockGearbox.facing);
             MysticalMechanicsAPI.IMPL.pullPower(this, from, capability, !getGear(from).isEmpty());
         }
         
         connections = 0;
-        List<EnumFacing> toUpdate = new ArrayList<>();
-        for (EnumFacing f : EnumFacing.values()) {
+        List<Direction> toUpdate = new ArrayList<>();
+        for (Direction f : Direction.values()) {
             if (f != null && f != from) {
                 TileEntity t = world.getTileEntity(getPos().offset(f));
                 if (t != null && t.hasCapability(MysticalMechanicsAPI.MECH_CAPABILITY, f.getOpposite())) {                	
@@ -91,14 +93,14 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
         }
         
         //Manages Power Output.
-        for (EnumFacing f : toUpdate) {
+        for (Direction f : toUpdate) {
             MysticalMechanicsAPI.IMPL.pushPower(this, f, capability, !getGear(f).isEmpty());
         }
         markDirty();
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound tag) {
+    public CompoundNBT writeToNBT(CompoundNBT tag) {
         super.writeToNBT(tag);
         capability.writeToNBT(tag);
         lubricant.writeToNBT(tag);
@@ -106,19 +108,19 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
             tag.setInteger("from", from.getIndex());
         }
         for (int i = 0; i < 6; i++) {
-            tag.setTag("side" + i, gears[i].writeToNBT(new NBTTagCompound()));
+            tag.setTag("side" + i, gears[i].writeToNBT(new CompoundNBT()));
         }
         tag.setInteger("connections", connections);
         return tag;
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tag) {
+    public void readFromNBT(CompoundNBT tag) {
         super.readFromNBT(tag);
         capability.readFromNBT(tag);
         lubricant.readFromNBT(tag);
         if (tag.hasKey("from")) {
-            from = EnumFacing.getFront(tag.getInteger("from"));
+            from = Direction.getFront(tag.getInteger("from"));
         }
         for (int i = 0; i < 6; i++) {
             gears[i].readFromNBT(tag.getCompoundTag("side" + i));
@@ -127,7 +129,7 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
         connections = tag.getInteger("connections");
     }
 
-    private void readLegacyGears(NBTTagCompound tag) {
+    private void readLegacyGears(CompoundNBT tag) {
 
         for (int i = 0; i < 6; i++) {
             if(tag.hasKey("gear"+i))
@@ -136,8 +138,8 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
     }
 
     @Override
-    public NBTTagCompound getUpdateTag() {
-        return writeToNBT(new NBTTagCompound());
+    public CompoundNBT getUpdateTag() {
+        return writeToNBT(new CompoundNBT());
     }
 
     @Nullable
@@ -152,7 +154,7 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
     }
 
     @Override
-    public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+    public boolean hasCapability(Capability<?> capability, Direction facing) {
         if (capability == MysticalMechanicsAPI.MECH_CAPABILITY) {
             return true;
         }
@@ -163,7 +165,7 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
     }
 
     @Override
-    public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+    public <T> T getCapability(Capability<T> capability, Direction facing) {
         if (capability == MysticalMechanicsAPI.MECH_CAPABILITY) {
         	@SuppressWarnings("unchecked") 
 			T result = (T) this.capability;
@@ -176,7 +178,7 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
     }
 
     @Override
-    public void attachGear(EnumFacing facing, ItemStack stack, EntityPlayer player) {
+    public void attachGear(Direction facing, ItemStack stack, PlayerEntity player) {
         if (facing == null)
             return;
         int index = facing.getIndex();
@@ -185,7 +187,7 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
     }
 
     @Override
-    public ItemStack detachGear(EnumFacing facing, EntityPlayer player) {
+    public ItemStack detachGear(Direction facing, PlayerEntity player) {
         if (facing == null)
             return ItemStack.EMPTY;
         int index = facing.getIndex();
@@ -196,26 +198,26 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
     }
 
     @Override
-    public ItemStack getGear(EnumFacing facing) {
+    public ItemStack getGear(Direction facing) {
         if (facing == null)
             return ItemStack.EMPTY;
         return gears[facing.getIndex()].getGear();
     }
 
     @Nullable
-    public GearHelperTile getGearHelper(EnumFacing facing) {
+    public GearHelperTile getGearHelper(Direction facing) {
         if (facing == null)
             return null;
         return gears[facing.getIndex()];
     }
 
     @Override
-    public boolean canAttachGear(EnumFacing facing, ItemStack stack) {
+    public boolean canAttachGear(Direction facing, ItemStack stack) {
         return gears[facing.getIndex()].canAttach(stack);
     }
 
     @Override
-    public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState) {
+    public boolean shouldRefresh(World world, BlockPos pos, BlockState oldState, BlockState newState) {
         return oldState.getBlock() != newState.getBlock();
     }
 
@@ -224,10 +226,10 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
         return connections;
     }
     
-    public boolean activate(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
-                            EnumFacing side, float hitX, float hitY, float hitZ) {
+    public boolean activate(World world, BlockPos pos, BlockState state, PlayerEntity player, EnumHand hand,
+                            Direction side, float hitX, float hitY, float hitZ) {
         ItemStack heldItem = player.getHeldItem(hand);
-        EnumFacing attachSide = side;
+        Direction attachSide = side;
         if(hand == EnumHand.OFF_HAND)
             return false;
         if(player.isSneaking())
@@ -337,8 +339,8 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
 
     private int getSoundLevel() {
         int level = 0;
-        for (EnumFacing.Axis axis : EnumFacing.Axis.values()) {
-            if(!getGear(EnumFacing.getFacingFromAxis(EnumFacing.AxisDirection.POSITIVE,axis)).isEmpty() || !getGear(EnumFacing.getFacingFromAxis(EnumFacing.AxisDirection.NEGATIVE,axis)).isEmpty())
+        for (Direction.Axis axis : Direction.Axis.values()) {
+            if(!getGear(Direction.getFacingFromAxis(Direction.AxisDirection.POSITIVE,axis)).isEmpty() || !getGear(Direction.getFacingFromAxis(Direction.AxisDirection.NEGATIVE,axis)).isEmpty())
                 level++;
         }
         return level;
@@ -350,7 +352,7 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
         Misc.syncTE(this, isBroken);
     }
 
-    public void breakBlock(World world, BlockPos pos, IBlockState state, EntityPlayer player) {
+    public void breakBlock(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         for (int i = 0; i < 6; i++) {
             ItemStack stack = gears[i].detach(player);
             if (!world.isRemote) {
@@ -371,7 +373,7 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
             updateNeighbors();
             shouldUpdate = false;
         }
-        for(EnumFacing facing : EnumFacing.VALUES) {
+        for(Direction facing : Direction.VALUES) {
             int i = facing.getIndex();
             if(world.isRemote) {
                 gears[i].visualUpdate(getGearInPower(facing), capability.getVisualPower(facing));
@@ -383,31 +385,31 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
         lubricant.tick();
     }
 
-    private double getGearInPower(EnumFacing facing) {
+    private double getGearInPower(Direction facing) {
         if(capability.isInput(facing))
             return getExternalPower(facing);
         else
             return getInternalPower(facing);
     }
 
-    private double getGearOutPower(EnumFacing facing) {
+    private double getGearOutPower(Direction facing) {
         if(capability.isOutput(facing))
             return capability.getPower(facing);
         else
             return getInternalPower(facing);
     }
 
-    protected double getExternalPower(EnumFacing facing) {
+    protected double getExternalPower(Direction facing) {
         return ((GearboxMechCapability)capability).getExternalPower(facing);
     }
 
-    protected double getInternalPower(EnumFacing facing) {
+    protected double getInternalPower(Direction facing) {
         return ((GearboxMechCapability)capability).getInternalPower(facing);
     }
 
-    public void rotateTile(World world, BlockPos pos, EnumFacing side) {
-        IBlockState state = world.getBlockState(pos);
-        EnumFacing currentFacing = state.getValue(BlockGearbox.facing);
+    public void rotateTile(World world, BlockPos pos, Direction side) {
+        BlockState state = world.getBlockState(pos);
+        Direction currentFacing = state.getValue(BlockGearbox.facing);
 
         capability.setPower(0,null);
         GearHelperTile[] temp = new GearHelperTile[gears.length];
@@ -415,7 +417,7 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
             temp[i] = gears[i];
         }
         for (int i = 0; i < gears.length; i++) {
-            EnumFacing facing = EnumFacing.getFront(i).rotateAround(side.getAxis());
+            Direction facing = Direction.getFront(i).rotateAround(side.getAxis());
             temp[i].setFacing(facing);
             gears[facing.getIndex()] = temp[i];
         }
@@ -437,7 +439,7 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
         }
 
         @Override
-        public double getPower(EnumFacing from) {
+        public double getPower(Direction from) {
             GearHelper gearHelper = getGearHelper(from);
             if (gearHelper != null && gearHelper.isEmpty()) {
                 return 0;
@@ -453,7 +455,7 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
         }
 
         @Override
-        public double getVisualPower(EnumFacing from) {
+        public double getVisualPower(Direction from) {
             GearHelper gearHelper = getGearHelper(from);
             if (gearHelper != null && gearHelper.isEmpty()) {
                 return 0;
@@ -472,7 +474,7 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
             return behavior.transformVisualPower(TileEntityGearbox.this, from, gearHelper.getGear(), gearHelper.getData(), unchangedPower);
         }
 
-        protected double getInternalPower(EnumFacing from) {
+        protected double getInternalPower(Direction from) {
             //need to work out solution for null checks that aren't the renderer.
             if (isInput(from))//|| from == null
                 return capability.power;
@@ -480,7 +482,7 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
                 return power / ((double) (Math.max(1, getConnections())));
         }
 
-        protected double getExternalPower(EnumFacing from) {
+        protected double getExternalPower(Direction from) {
             if (isInput(from))
                 return powerExternal;
             else
@@ -488,7 +490,7 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
         }
 
         @Override
-        public void setPower(double value, EnumFacing from) {
+        public void setPower(double value, Direction from) {
             GearHelper gearHelper = getGearHelper(from);
 
             if(from == null) {
@@ -514,23 +516,23 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
         }
 
         @Override
-        public boolean isInput(EnumFacing from) {
+        public boolean isInput(Direction from) {
             return TileEntityGearbox.this.from == from;
         }
 
         @Override
-        public boolean isOutput(EnumFacing from) {
+        public boolean isOutput(Direction from) {
             return TileEntityGearbox.this.from != from;
         }
 
         @Override
-        public void writeToNBT(NBTTagCompound tag) {
+        public void writeToNBT(CompoundNBT tag) {
             super.writeToNBT(tag);
-            tag.setDouble("powerExternal", powerExternal);
+            tag.putDouble("powerExternal", powerExternal);
         }
 
         @Override
-        public void readFromNBT(NBTTagCompound tag) {
+        public void readFromNBT(CompoundNBT tag) {
             super.readFromNBT(tag);
             powerExternal = tag.getDouble("powerExternal");
         }

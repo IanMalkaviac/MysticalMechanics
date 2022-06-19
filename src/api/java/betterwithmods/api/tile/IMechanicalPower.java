@@ -2,18 +2,18 @@ package betterwithmods.api.tile;
 
 import betterwithmods.api.block.IOverpower;
 import net.minecraft.block.Block;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public interface IMechanicalPower {
-    int getMechanicalOutput(EnumFacing facing);
+    int getMechanicalOutput(Direction facing);
 
-    int getMechanicalInput(EnumFacing facing);
+    int getMechanicalInput(Direction facing);
 
-    int getMaximumInput(EnumFacing facing);
+    int getMaximumInput(Direction facing);
 
-    int getMinimumInput(EnumFacing facing);
+    int getMinimumInput(Direction facing);
 
     Block getBlock();
 
@@ -23,13 +23,13 @@ public interface IMechanicalPower {
 
     default int calculateInput() {
         int findPower = 0;
-        for (EnumFacing facing : EnumFacing.values()) {
+        for (Direction facing : Direction.values()) {
             int power = getMechanicalInput(facing);
             if (power > findPower) {
                 findPower = power;
             }
         }
-        if (overpowerChance() && findPower > getMaximumInput(EnumFacing.UP)) {
+        if (overpowerChance() && findPower > getMaximumInput(Direction.UP)) {
             overpower();
             return 0;
         }

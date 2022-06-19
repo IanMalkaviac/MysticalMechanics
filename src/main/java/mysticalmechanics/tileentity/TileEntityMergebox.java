@@ -6,11 +6,11 @@ import java.util.List;
 import mysticalmechanics.api.*;
 import mysticalmechanics.block.BlockGearbox;
 import mysticalmechanics.util.Misc;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 public class TileEntityMergebox extends TileEntityGearbox {
 	//public int connections = 0;
@@ -27,27 +27,27 @@ public class TileEntityMergebox extends TileEntityGearbox {
     }
 
     @Override
-    protected double getInternalPower(EnumFacing facing) {
+    protected double getInternalPower(Direction facing) {
         return ((MergeboxMechCapability)capability).getInternalPower(facing);
     }
 
     @Override
-    protected double getExternalPower(EnumFacing facing) {
+    protected double getExternalPower(Direction facing) {
         return ((MergeboxMechCapability)capability).getExternalPower(facing);
     }
 
     @Override
     public void updateNeighbors() {
-        IBlockState state = world.getBlockState(getPos());
+        BlockState state = world.getBlockState(getPos());
         
         //manages Mergeboxes input;
-        for (EnumFacing f : EnumFacing.VALUES) {
+        for (Direction f : Direction.VALUES) {
             MysticalMechanicsAPI.IMPL.pullPower(this, f, capability, !getGear(f).isEmpty());
         }
         
         connections = 0;
-        List<EnumFacing> toUpdate = new ArrayList<>();
-        for (EnumFacing f : EnumFacing.VALUES) {
+        List<Direction> toUpdate = new ArrayList<>();
+        for (Direction f : Direction.VALUES) {
             if (f != from) {
                 TileEntity t = world.getTileEntity(getPos().offset(f));
                 if (t != null && t.hasCapability(MysticalMechanicsAPI.MECH_CAPABILITY, f.getOpposite())) {
@@ -98,7 +98,7 @@ public class TileEntityMergebox extends TileEntityGearbox {
         }
 
         @Override
-        public double getPower(EnumFacing from) {
+        public double getPower(Direction from) {
             GearHelper gearHelper = getGearHelper(from);
             if (gearHelper != null && gearHelper.isEmpty()) {
                 return 0;
@@ -114,7 +114,7 @@ public class TileEntityMergebox extends TileEntityGearbox {
         }
 
         @Override
-        public double getVisualPower(EnumFacing from) {
+        public double getVisualPower(Direction from) {
             GearHelper gearHelper = getGearHelper(from);
             if (gearHelper != null && gearHelper.isEmpty()) {
                 return 0;
@@ -133,7 +133,7 @@ public class TileEntityMergebox extends TileEntityGearbox {
             return behavior.transformVisualPower(TileEntityMergebox.this, from, gearHelper.getGear(), gearHelper.getData(), unchangedPower);
         }
 
-        private double getInternalPower(EnumFacing from) {
+        private double getInternalPower(Direction from) {
             //need to work out solution for null checks that aren't the renderer.
             if (isOutput(from) && !getGear(from).isEmpty() && getConnections() != 0) {
                 return Math.max(0, getPowerInternal());
@@ -144,7 +144,7 @@ public class TileEntityMergebox extends TileEntityGearbox {
             }
         }
 
-        private double getExternalPower(EnumFacing from) {
+        private double getExternalPower(Direction from) {
             if(from != null && isInput(from))
                 return powerValuesExternal[from.getIndex()];
             else
@@ -152,7 +152,7 @@ public class TileEntityMergebox extends TileEntityGearbox {
         }
 
         @Override
-        public void setPower(double value, EnumFacing from) {
+        public void setPower(double value, Direction from) {
             GearHelper gearHelper = getGearHelper(from);
             if(from == null) {
                 for (int i = 0; i < powerValues.length; i++) {
@@ -173,7 +173,7 @@ public class TileEntityMergebox extends TileEntityGearbox {
         			onPowerChange();
         		}
         	} else if(from == null && TileEntityMergebox.this.isBroken) {
-        		for(EnumFacing face : EnumFacing.values()) {
+        		for(Direction face : Direction.values()) {
         			powerValues[face.getIndex()] = 0;
         			onPowerChange();
         		}
@@ -187,14 +187,14 @@ public class TileEntityMergebox extends TileEntityGearbox {
             else {
                 adjustedPower = 0;
                 double equalPower = Double.POSITIVE_INFINITY;
-                for (EnumFacing facing : EnumFacing.VALUES) {
+                for (Direction facing : Direction.VALUES) {
                     if (isOutput(facing))
                         continue;
                     double power = powerValues[facing.getIndex()];
                     if (power > 0)
                         equalPower = Math.min(equalPower, power);
                 }
-                for (EnumFacing face : EnumFacing.values()) {
+                for (Direction face : Direction.values()) {
                     double power = powerValues[face.getIndex()];
                     if (!isOutput(face) && Misc.isRoughlyEqual(equalPower, power)) {
                         adjustedPower += power;
@@ -209,49 +209,49 @@ public class TileEntityMergebox extends TileEntityGearbox {
         }
 
         @Override
-        public boolean isInput(EnumFacing from) {
+        public boolean isInput(Direction from) {
             return TileEntityMergebox.this.from != from;
         }
 
         @Override
-        public boolean isOutput(EnumFacing from) {
+        public boolean isOutput(Direction from) {
             return TileEntityMergebox.this.from == from;
         }
 
         @Override
-        public void readFromNBT(NBTTagCompound tag) {
+        public void readFromNBT(CompoundNBT tag) {
             super.readFromNBT(tag);
             waitTime = tag.getInteger("waitTime");
-            powerValues[EnumFacing.UP.getIndex()] = tag.getDouble("mechPowerUp");
-            powerValues[EnumFacing.DOWN.getIndex()] = tag.getDouble("mechPowerDown");
-            powerValues[EnumFacing.NORTH.getIndex()] = tag.getDouble("mechPowerNorth");
-            powerValues[EnumFacing.SOUTH.getIndex()] = tag.getDouble("mechPowerSouth");
-            powerValues[EnumFacing.EAST.getIndex()] = tag.getDouble("mechPowerEast");
-            powerValues[EnumFacing.WEST.getIndex()] = tag.getDouble("mechPowerWest");
-            powerValuesExternal[EnumFacing.UP.getIndex()] = tag.getDouble("mechPowerExternalUp");
-            powerValuesExternal[EnumFacing.DOWN.getIndex()] = tag.getDouble("mechPowerExternalDown");
-            powerValuesExternal[EnumFacing.NORTH.getIndex()] = tag.getDouble("mechPowerExternalNorth");
-            powerValuesExternal[EnumFacing.SOUTH.getIndex()] = tag.getDouble("mechPowerExternalSouth");
-            powerValuesExternal[EnumFacing.EAST.getIndex()] = tag.getDouble("mechPowerExternalEast");
-            powerValuesExternal[EnumFacing.WEST.getIndex()] = tag.getDouble("mechPowerExternalWest");
+            powerValues[Direction.UP.getIndex()] = tag.getDouble("mechPowerUp");
+            powerValues[Direction.DOWN.getIndex()] = tag.getDouble("mechPowerDown");
+            powerValues[Direction.NORTH.getIndex()] = tag.getDouble("mechPowerNorth");
+            powerValues[Direction.SOUTH.getIndex()] = tag.getDouble("mechPowerSouth");
+            powerValues[Direction.EAST.getIndex()] = tag.getDouble("mechPowerEast");
+            powerValues[Direction.WEST.getIndex()] = tag.getDouble("mechPowerWest");
+            powerValuesExternal[Direction.UP.getIndex()] = tag.getDouble("mechPowerExternalUp");
+            powerValuesExternal[Direction.DOWN.getIndex()] = tag.getDouble("mechPowerExternalDown");
+            powerValuesExternal[Direction.NORTH.getIndex()] = tag.getDouble("mechPowerExternalNorth");
+            powerValuesExternal[Direction.SOUTH.getIndex()] = tag.getDouble("mechPowerExternalSouth");
+            powerValuesExternal[Direction.EAST.getIndex()] = tag.getDouble("mechPowerExternalEast");
+            powerValuesExternal[Direction.WEST.getIndex()] = tag.getDouble("mechPowerExternalWest");
         }
 
         @Override
-        public void writeToNBT(NBTTagCompound tag) {
+        public void writeToNBT(CompoundNBT tag) {
             super.writeToNBT(tag);
             tag.setInteger("waitTime",waitTime);
-            tag.setDouble("mechPowerUp",powerValues[EnumFacing.UP.getIndex()]);
-            tag.setDouble("mechPowerDown",powerValues[EnumFacing.DOWN.getIndex()]);
-            tag.setDouble("mechPowerNorth",powerValues[EnumFacing.NORTH.getIndex()]);
-            tag.setDouble("mechPowerSouth", powerValues[EnumFacing.SOUTH.getIndex()]);
-            tag.setDouble("mechPowerEast",powerValues[EnumFacing.EAST.getIndex()]);
-            tag.setDouble("mechPowerWest",powerValues[EnumFacing.WEST.getIndex()]);
-            tag.setDouble("mechPowerExternalUp",powerValuesExternal[EnumFacing.UP.getIndex()]);
-            tag.setDouble("mechPowerExternalDown",powerValuesExternal[EnumFacing.DOWN.getIndex()]);
-            tag.setDouble("mechPowerExternalNorth",powerValuesExternal[EnumFacing.NORTH.getIndex()]);
-            tag.setDouble("mechPowerExternalSouth", powerValuesExternal[EnumFacing.SOUTH.getIndex()]);
-            tag.setDouble("mechPowerExternalEast",powerValuesExternal[EnumFacing.EAST.getIndex()]);
-            tag.setDouble("mechPowerExternalWest",powerValuesExternal[EnumFacing.WEST.getIndex()]);
+            tag.putDouble("mechPowerUp",powerValues[Direction.UP.getIndex()]);
+            tag.putDouble("mechPowerDown",powerValues[Direction.DOWN.getIndex()]);
+            tag.putDouble("mechPowerNorth",powerValues[Direction.NORTH.getIndex()]);
+            tag.putDouble("mechPowerSouth", powerValues[Direction.SOUTH.getIndex()]);
+            tag.putDouble("mechPowerEast",powerValues[Direction.EAST.getIndex()]);
+            tag.putDouble("mechPowerWest",powerValues[Direction.WEST.getIndex()]);
+            tag.putDouble("mechPowerExternalUp",powerValuesExternal[Direction.UP.getIndex()]);
+            tag.putDouble("mechPowerExternalDown",powerValuesExternal[Direction.DOWN.getIndex()]);
+            tag.putDouble("mechPowerExternalNorth",powerValuesExternal[Direction.NORTH.getIndex()]);
+            tag.putDouble("mechPowerExternalSouth", powerValuesExternal[Direction.SOUTH.getIndex()]);
+            tag.putDouble("mechPowerExternalEast",powerValuesExternal[Direction.EAST.getIndex()]);
+            tag.putDouble("mechPowerExternalWest",powerValuesExternal[Direction.WEST.getIndex()]);
         }
     }
 }
