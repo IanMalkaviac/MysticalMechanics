@@ -10,16 +10,16 @@ import mysticalmechanics.util.Misc;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.IStateHolder;
-import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.ITickable;
+import net.minecraft.util.Hand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox, ISoundController {
+public class TileEntityGearbox extends TileEntity implements ITickableTileEntity, IGearbox, ISoundController {
     Direction from = null;       
     protected boolean isBroken;
     public int connections = 0;
@@ -144,12 +144,12 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
 
     @Nullable
     @Override
-    public SPacketUpdateTileEntity getUpdatePacket() {
-        return new SPacketUpdateTileEntity(getPos(), 0, getUpdateTag());
+    public SUpdateTileEntityPacket getUpdatePacket() {
+        return new SUpdateTileEntityPacket(getPos(), 0, getUpdateTag());
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
         readFromNBT(pkt.getNbtCompound());
     }
 
@@ -226,11 +226,11 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
         return connections;
     }
     
-    public boolean activate(World world, BlockPos pos, BlockState state, PlayerEntity player, EnumHand hand,
+    public boolean activate(World world, BlockPos pos, BlockState state, PlayerEntity player, Hand hand,
                             Direction side, float hitX, float hitY, float hitZ) {
         ItemStack heldItem = player.getHeldItem(hand);
         Direction attachSide = side;
-        if(hand == EnumHand.OFF_HAND)
+        if(hand == Hand.OFF_HAND)
             return false;
         if(player.isSneaking())
             attachSide = attachSide.getOpposite();
@@ -246,7 +246,7 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
         } else if (!getGear(attachSide).isEmpty()) {
             ItemStack gear = detachGear(attachSide,player);
             if (!world.isRemote) {
-                world.spawnEntity(new EntityItem(world, player.posX, player.posY + player.height / 2.0f, player.posZ, gear));
+                world.spawnEntity(new ItemEntity(world, player.posX, player.posY + player.height / 2.0f, player.posZ, gear));
             }
             return true;
         }
@@ -356,7 +356,7 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
         for (int i = 0; i < 6; i++) {
             ItemStack stack = gears[i].detach(player);
             if (!world.isRemote) {
-                world.spawnEntity(new EntityItem(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack));
+                world.spawnEntity(new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack));
             }
         }
         isBroken = true;
@@ -365,7 +365,7 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
     }
 
     @Override
-    public void update() {
+    public void tick() {
         if (world.isRemote) {
             handleSound();
         }
@@ -373,7 +373,7 @@ public class TileEntityGearbox extends TileEntity implements ITickable, IGearbox
             updateNeighbors();
             shouldUpdate = false;
         }
-        for(Direction facing : Direction.VALUES) {
+        for(Direction facing : Direction.values()) {
             int i = facing.getIndex();
             if(world.isRemote) {
                 gears[i].visualUpdate(getGearInPower(facing), capability.getVisualPower(facing));

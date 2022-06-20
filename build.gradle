@@ -114,6 +114,7 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.jetbrains:annotations:20.1.0'
     minecraft 'net.minecraftforge:forge:1.15.2-31.2.57'
     implementation fg.deobf("mezz.jei:jei-1.15.2:6.0.3.16")
     compileOnly files('libs/')

@@ -21,7 +21,7 @@ public class TileEntityMergebox extends TileEntityGearbox {
     }
 
     @Override
-    public void update() {
+    public void tick() {
         super.update();
         ((MergeboxMechCapability)capability).reduceWait();
     }

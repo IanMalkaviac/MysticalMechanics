@@ -32,7 +32,7 @@ public class MachineSound extends PositionedSound implements ITickableSound {
     }
 
     @Override
-    public void update() {
+    public void tick() {
         if(boundTile == null || boundTile.isInvalid())
             donePlaying = true;
         else if(boundTile instanceof ISoundController) {

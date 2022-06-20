@@ -10,7 +10,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.Direction.AxisDirection;
@@ -21,7 +21,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class TileEntityAxle extends TileEntity implements ITickable, IAxle, IHasRotation {
+public class TileEntityAxle extends TileEntity implements ITickableTileEntity, IAxle, IHasRotation {
 	//BlockPos front;
 	//BlockPos back;
     public double angle, lastAngle;
@@ -160,12 +160,12 @@ public class TileEntityAxle extends TileEntity implements ITickable, IAxle, IHas
 
     @Nullable
     @Override
-    public SPacketUpdateTileEntity getUpdatePacket() {
-        return new SPacketUpdateTileEntity(getPos(), 0, getUpdateTag());
+    public SUpdateTileEntityPacket getUpdatePacket() {
+        return new SUpdateTileEntityPacket(getPos(), 0, getUpdateTag());
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
         readFromNBT(pkt.getNbtCompound());
     }  
     
@@ -190,7 +190,7 @@ public class TileEntityAxle extends TileEntity implements ITickable, IAxle, IHas
         return super.getCapability(capability, facing);
     }
 
-    public boolean activate(World world, BlockPos pos, BlockState state, PlayerEntity player, EnumHand hand,
+    public boolean activate(World world, BlockPos pos, BlockState state, PlayerEntity player, Hand hand,
                             Direction side, float hitX, float hitY, float hitZ) {
         return false;
     }
@@ -286,7 +286,7 @@ public class TileEntityAxle extends TileEntity implements ITickable, IAxle, IHas
 	}
 
     @Override
-    public void update() {
+    public void tick() {
         if(world.isRemote) {
 			lastAngle = angle;
 			angle += capability.getPower(null);

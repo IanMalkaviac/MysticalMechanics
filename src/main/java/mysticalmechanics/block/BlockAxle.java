@@ -107,7 +107,7 @@ public class BlockAxle extends DirectionalBlock {
     }
 
     @Override
-    public boolean onBlockActivated(World world, BlockPos pos, BlockState state, PlayerEntity playerIn, EnumHand hand, Direction facing, float hitX, float hitY, float hitZ) {
+    public boolean onBlockActivated(World world, BlockPos pos, BlockState state, PlayerEntity playerIn, Hand hand, Direction facing, float hitX, float hitY, float hitZ) {
         TileEntityAxle tile = (TileEntityAxle)world.getTileEntity(pos);
         return tile.activate(world, pos, state, playerIn, hand, facing, hitX, hitY, hitZ);
     }

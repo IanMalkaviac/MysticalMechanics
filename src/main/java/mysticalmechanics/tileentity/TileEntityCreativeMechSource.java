@@ -6,11 +6,11 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.ITickable;
+import net.minecraft.util.Hand;
+import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
@@ -18,7 +18,7 @@ import net.minecraftforge.common.capabilities.Capability;
 
 import javax.annotation.Nullable;
 
-public class TileEntityCreativeMechSource extends TileEntity implements ITickable {
+public class TileEntityCreativeMechSource extends TileEntity implements ITickableTileEntity {
     int ticksExisted = 0;
     private double[] wantedPower = new double[]{10,20,40,80,160,320};
     private double currentPower = 10;
@@ -84,12 +84,12 @@ public class TileEntityCreativeMechSource extends TileEntity implements ITickabl
 
     @Nullable
     @Override
-    public SPacketUpdateTileEntity getUpdatePacket() {
-        return new SPacketUpdateTileEntity(getPos(), 0, getUpdateTag());
+    public SUpdateTileEntityPacket getUpdatePacket() {
+        return new SUpdateTileEntityPacket(getPos(), 0, getUpdateTag());
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
         readFromNBT(pkt.getNbtCompound());
     }
 
@@ -111,7 +111,7 @@ public class TileEntityCreativeMechSource extends TileEntity implements ITickabl
         return super.getCapability(capability, facing);
     }
 
-    public boolean activate(World world, BlockPos pos, BlockState state, PlayerEntity player, EnumHand hand,
+    public boolean activate(World world, BlockPos pos, BlockState state, PlayerEntity player, Hand hand,
                             Direction side, float hitX, float hitY, float hitZ) {
         if(player.isSneaking())
             wantedPowerIndex = (wantedPowerIndex+wantedPower.length-1) % wantedPower.length;
@@ -133,7 +133,7 @@ public class TileEntityCreativeMechSource extends TileEntity implements ITickabl
     }
 
     @Override
-    public void update() {
+    public void tick() {
         ticksExisted++;
         double wantedPower = this.wantedPower[wantedPowerIndex];
         if (capability.getPower(null) != wantedPower){

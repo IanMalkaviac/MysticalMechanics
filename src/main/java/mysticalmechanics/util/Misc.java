@@ -1,7 +1,7 @@
 package mysticalmechanics.util;
 
 import net.minecraft.network.play.server.SPacketBlockChange;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.server.management.PlayerChunkMap;
 import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.tileentity.TileEntity;
@@ -19,7 +19,7 @@ public class Misc {
 		World world = tile.getWorld();		
 		if (world instanceof WorldServer) {
 			PlayerChunkMap chunkMap = ((WorldServer) world).getPlayerChunkMap();
-			SPacketUpdateTileEntity packet = tile.getUpdatePacket();
+			SUpdateTileEntityPacket packet = tile.getUpdatePacket();
 			if (packet != null) {
 				int i = tile.getPos().getX() >> 4;
 				int j = tile.getPos().getZ() >> 4;

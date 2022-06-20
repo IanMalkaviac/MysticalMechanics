@@ -7,16 +7,16 @@ import mysticalmechanics.block.BlockConverterBWM;
 import mysticalmechanics.util.Misc;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.ITickable;
+import net.minecraft.util.Hand;
+import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
@@ -24,7 +24,7 @@ import net.minecraftforge.common.capabilities.Capability;
 
 import javax.annotation.Nullable;
 
-public class TileEntityConverterBWM extends TileEntity implements ITickable, IGearbox {
+public class TileEntityConverterBWM extends TileEntity implements ITickableTileEntity, IGearbox {
     protected boolean isBroken;
 
     ConverterMystMechCapability capabilityMystMech;
@@ -102,7 +102,7 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
     }
 
     @Override
-    public void update() {
+    public void tick() {
         if(shouldUpdate) {
             updateNeighbors();
             shouldUpdate = false;
@@ -149,12 +149,12 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
 
     @Nullable
     @Override
-    public SPacketUpdateTileEntity getUpdatePacket() {
-        return new SPacketUpdateTileEntity(getPos(), 0, getUpdateTag());
+    public SUpdateTileEntityPacket getUpdatePacket() {
+        return new SUpdateTileEntityPacket(getPos(), 0, getUpdateTag());
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
         readFromNBT(pkt.getNbtCompound());
     }
 
@@ -196,11 +196,11 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
         markDirty();
     }
 
-    public boolean activate(World world, BlockPos pos, BlockState state, PlayerEntity player, EnumHand hand,
+    public boolean activate(World world, BlockPos pos, BlockState state, PlayerEntity player, Hand hand,
                             Direction side, float hitX, float hitY, float hitZ) {
         ItemStack heldItem = player.getHeldItem(hand);
         Direction attachSide = side;
-        if(hand == EnumHand.OFF_HAND)
+        if(hand == Hand.OFF_HAND)
             return false;
         if(side == getSideBWM()) {
             capabilityBWM.power = 0;
@@ -228,7 +228,7 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
         } else if (!getGear(attachSide).isEmpty()) {
             ItemStack gear = detachGear(attachSide,player);
             if (!world.isRemote) {
-                world.spawnEntity(new EntityItem(world, player.posX, player.posY + player.height / 2.0f, player.posZ, gear));
+                world.spawnEntity(new ItemEntity(world, player.posX, player.posY + player.height / 2.0f, player.posZ, gear));
             }
             return true;
         }
@@ -247,7 +247,7 @@ public class TileEntityConverterBWM extends TileEntity implements ITickable, IGe
     public void breakBlock(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         ItemStack stack = gear.detach(player);
         if (!world.isRemote) {
-            world.spawnEntity(new EntityItem(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack));
+            world.spawnEntity(new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack));
         }
         isBroken = true;
         capabilityMystMech.setPower(0, null);
